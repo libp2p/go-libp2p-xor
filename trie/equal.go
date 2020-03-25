@@ -7,9 +7,9 @@ import (
 func Equal(p, q *XorTrie) bool {
 	switch {
 	case p.isLeaf() && q.isLeaf():
-		return key.Equal(p.key, q.key)
+		return key.Equal(p.Key, q.Key)
 	case !p.isLeaf() && !q.isLeaf():
-		return Equal(p.branch[0], q.branch[0]) && Equal(p.branch[1], q.branch[1])
+		return Equal(p.Branch[0], q.Branch[0]) && Equal(p.Branch[1], q.Branch[1])
 	}
 	return false
 }

@@ -14,24 +14,24 @@ func add(depth int, trie *XorTrie, q key.Key) *XorTrie {
 	dir := q.BitAt(depth)
 	if !trie.isLeaf() {
 		s := &XorTrie{}
-		s.branch[dir] = add(depth+1, trie.branch[dir], q)
-		s.branch[1-dir] = trie.branch[1-dir]
+		s.Branch[dir] = add(depth+1, trie.Branch[dir], q)
+		s.Branch[1-dir] = trie.Branch[1-dir]
 		return s
 	} else {
-		if trie.key == nil {
-			return &XorTrie{key: q}
+		if trie.Key == nil {
+			return &XorTrie{Key: q}
 		} else {
-			if key.Equal(trie.key, q) {
+			if key.Equal(trie.Key, q) {
 				return trie
 			} else {
 				s := &XorTrie{}
-				if q.BitAt(depth) == trie.key.BitAt(depth) {
-					s.branch[dir] = add(depth+1, &XorTrie{key: trie.key}, q)
-					s.branch[1-dir] = &XorTrie{}
+				if q.BitAt(depth) == trie.Key.BitAt(depth) {
+					s.Branch[dir] = add(depth+1, &XorTrie{Key: trie.Key}, q)
+					s.Branch[1-dir] = &XorTrie{}
 					return s
 				} else {
-					s.branch[dir] = add(depth+1, &XorTrie{key: trie.key}, q)
-					s.branch[1-dir] = &XorTrie{}
+					s.Branch[dir] = add(depth+1, &XorTrie{Key: trie.Key}, q)
+					s.Branch[1-dir] = &XorTrie{}
 				}
 				return s
 			}

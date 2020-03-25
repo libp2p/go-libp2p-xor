@@ -7,10 +7,11 @@ import (
 // XorTrie is a trie for equal-length bit vectors, which stores values only in the leaves.
 // XorTrie node invariants:
 // (1) Either both branches are nil, or both are non-nil.
-// (2) If both branches are leaves, then they are both non-empty (have keys).
+// (2) If branches are non-nil, key must be nil.
+// (3) If both branches are leaves, then they are both non-empty (have keys).
 type XorTrie struct {
-	branch [2]*XorTrie
-	key    key.Key
+	Branch [2]*XorTrie
+	Key    key.Key
 }
 
 func New() *XorTrie {
@@ -22,10 +23,10 @@ func (trie *XorTrie) Depth() int {
 }
 
 func (trie *XorTrie) depth(depth int) int {
-	if trie.branch[0] == nil && trie.branch[1] == nil {
+	if trie.Branch[0] == nil && trie.Branch[1] == nil {
 		return depth
 	} else {
-		return max(trie.branch[0].depth(depth+1), trie.branch[1].depth(depth+1))
+		return max(trie.Branch[0].depth(depth+1), trie.Branch[1].depth(depth+1))
 	}
 }
 
@@ -41,13 +42,13 @@ func (trie *XorTrie) Find(q key.Key) (reachedDepth int, found bool) {
 }
 
 func (trie *XorTrie) find(depth int, q key.Key) (reachedDepth int, found bool) {
-	if qb := trie.branch[q.BitAt(depth)]; qb != nil {
+	if qb := trie.Branch[q.BitAt(depth)]; qb != nil {
 		return qb.find(depth+1, q)
 	} else {
-		if trie.key == nil {
+		if trie.Key == nil {
 			return depth, false
 		} else {
-			return depth, key.Equal(trie.key, q)
+			return depth, key.Equal(trie.Key, q)
 		}
 	}
 }
@@ -59,22 +60,22 @@ func (trie *XorTrie) Add(q key.Key) (insertedDepth int, insertedOK bool) {
 }
 
 func (trie *XorTrie) add(depth int, q key.Key) (insertedDepth int, insertedOK bool) {
-	if qb := trie.branch[q.BitAt(depth)]; qb != nil {
+	if qb := trie.Branch[q.BitAt(depth)]; qb != nil {
 		return qb.add(depth+1, q)
 	} else {
-		if trie.key == nil {
-			trie.key = q
+		if trie.Key == nil {
+			trie.Key = q
 			return depth, true
 		} else {
-			if key.Equal(trie.key, q) {
+			if key.Equal(trie.Key, q) {
 				return depth, false
 			} else {
-				p := trie.key
-				trie.key = nil
-				// both branches are nil
-				trie.branch[0], trie.branch[1] = &XorTrie{}, &XorTrie{}
-				trie.branch[p.BitAt(depth)].add(depth+1, p)
-				return trie.branch[q.BitAt(depth)].add(depth+1, q)
+				p := trie.Key
+				trie.Key = nil
+				// both Branches are nil
+				trie.Branch[0], trie.Branch[1] = &XorTrie{}, &XorTrie{}
+				trie.Branch[p.BitAt(depth)].add(depth+1, p)
+				return trie.Branch[q.BitAt(depth)].add(depth+1, q)
 			}
 		}
 	}
@@ -87,7 +88,7 @@ func (trie *XorTrie) Remove(q key.Key) (removedDepth int, removed bool) {
 }
 
 func (trie *XorTrie) remove(depth int, q key.Key) (reachedDepth int, removed bool) {
-	if qb := trie.branch[q.BitAt(depth)]; qb != nil {
+	if qb := trie.Branch[q.BitAt(depth)]; qb != nil {
 		if d, ok := qb.remove(depth+1, q); ok {
 			trie.shrink()
 			return d, true
@@ -95,8 +96,8 @@ func (trie *XorTrie) remove(depth int, q key.Key) (reachedDepth int, removed boo
 			return d, false
 		}
 	} else {
-		if trie.key != nil && key.Equal(q, trie.key) {
-			trie.key = nil
+		if trie.Key != nil && key.Equal(q, trie.Key) {
+			trie.Key = nil
 			return depth, true
 		} else {
 			return depth, false
@@ -105,11 +106,11 @@ func (trie *XorTrie) remove(depth int, q key.Key) (reachedDepth int, removed boo
 }
 
 func (trie *XorTrie) isEmpty() bool {
-	return trie.key == nil
+	return trie.Key == nil
 }
 
 func (trie *XorTrie) isLeaf() bool {
-	return trie.branch[0] == nil && trie.branch[1] == nil
+	return trie.Branch[0] == nil && trie.Branch[1] == nil
 }
 
 func (trie *XorTrie) isEmptyLeaf() bool {
@@ -121,15 +122,15 @@ func (trie *XorTrie) isNonEmptyLeaf() bool {
 }
 
 func (trie *XorTrie) shrink() {
-	b0, b1 := trie.branch[0], trie.branch[1]
+	b0, b1 := trie.Branch[0], trie.Branch[1]
 	switch {
 	case b0.isEmptyLeaf() && b1.isEmptyLeaf():
-		trie.branch[0], trie.branch[1] = nil, nil
+		trie.Branch[0], trie.Branch[1] = nil, nil
 	case b0.isEmptyLeaf() && b1.isNonEmptyLeaf():
-		trie.key = b1.key
-		trie.branch[0], trie.branch[1] = nil, nil
+		trie.Key = b1.Key
+		trie.Branch[0], trie.Branch[1] = nil, nil
 	case b0.isNonEmptyLeaf() && b1.isEmptyLeaf():
-		trie.key = b0.key
-		trie.branch[0], trie.branch[1] = nil, nil
+		trie.Key = b0.Key
+		trie.Branch[0], trie.Branch[1] = nil, nil
 	}
 }
