@@ -1,4 +1,8 @@
-package xor
+package trie
+
+import (
+	"github.com/libp2p/go-libp2p-xor/key"
+)
 
 // Intersect computes the intersection of the keys in p and q.
 // p and q must be non-nil. The returned trie is never nil.
@@ -12,7 +16,7 @@ func intersect(depth int, p, q *XorTrie) *XorTrie {
 		if p.isEmpty() || q.isEmpty() {
 			return &XorTrie{} // empty set
 		} else {
-			if TrieKeyEqual(p.key, q.key) {
+			if key.Equal(p.key, q.key) {
 				return &XorTrie{key: p.key} // singleton
 			} else {
 				return &XorTrie{} // empty set

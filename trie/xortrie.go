@@ -1,4 +1,8 @@
-package xor
+package trie
+
+import (
+	"github.com/libp2p/go-libp2p-xor/key"
+)
 
 // XorTrie is a trie for equal-length bit vectors, which stores values only in the leaves.
 // XorTrie node invariants:
@@ -6,10 +10,10 @@ package xor
 // (2) If both branches are leaves, then they are both non-empty (have keys).
 type XorTrie struct {
 	branch [2]*XorTrie
-	key    TrieKey
+	key    key.Key
 }
 
-func NewXorTrie() *XorTrie {
+func New() *XorTrie {
 	return &XorTrie{}
 }
 
@@ -32,29 +36,29 @@ func max(x, y int) int {
 	return y
 }
 
-func (trie *XorTrie) Find(q TrieKey) (reachedDepth int, found bool) {
+func (trie *XorTrie) Find(q key.Key) (reachedDepth int, found bool) {
 	return trie.find(0, q)
 }
 
-func (trie *XorTrie) find(depth int, q TrieKey) (reachedDepth int, found bool) {
+func (trie *XorTrie) find(depth int, q key.Key) (reachedDepth int, found bool) {
 	if qb := trie.branch[q.BitAt(depth)]; qb != nil {
 		return qb.find(depth+1, q)
 	} else {
 		if trie.key == nil {
 			return depth, false
 		} else {
-			return depth, TrieKeyEqual(trie.key, q)
+			return depth, key.Equal(trie.key, q)
 		}
 	}
 }
 
 // Add adds the key q to the trie. Add mutates the trie.
 // TODO: Also implement an immutable version of Add.
-func (trie *XorTrie) Add(q TrieKey) (insertedDepth int, insertedOK bool) {
+func (trie *XorTrie) Add(q key.Key) (insertedDepth int, insertedOK bool) {
 	return trie.add(0, q)
 }
 
-func (trie *XorTrie) add(depth int, q TrieKey) (insertedDepth int, insertedOK bool) {
+func (trie *XorTrie) add(depth int, q key.Key) (insertedDepth int, insertedOK bool) {
 	if qb := trie.branch[q.BitAt(depth)]; qb != nil {
 		return qb.add(depth+1, q)
 	} else {
@@ -62,7 +66,7 @@ func (trie *XorTrie) add(depth int, q TrieKey) (insertedDepth int, insertedOK bo
 			trie.key = q
 			return depth, true
 		} else {
-			if TrieKeyEqual(trie.key, q) {
+			if key.Equal(trie.key, q) {
 				return depth, false
 			} else {
 				p := trie.key
@@ -78,11 +82,11 @@ func (trie *XorTrie) add(depth int, q TrieKey) (insertedDepth int, insertedOK bo
 
 // Remove removes the key q from the trie. Remove mutates the trie.
 // TODO: Also implement an immutable version of Add.
-func (trie *XorTrie) Remove(q TrieKey) (removedDepth int, removed bool) {
+func (trie *XorTrie) Remove(q key.Key) (removedDepth int, removed bool) {
 	return trie.remove(0, q)
 }
 
-func (trie *XorTrie) remove(depth int, q TrieKey) (reachedDepth int, removed bool) {
+func (trie *XorTrie) remove(depth int, q key.Key) (reachedDepth int, removed bool) {
 	if qb := trie.branch[q.BitAt(depth)]; qb != nil {
 		if d, ok := qb.remove(depth+1, q); ok {
 			trie.shrink()
@@ -91,7 +95,7 @@ func (trie *XorTrie) remove(depth int, q TrieKey) (reachedDepth int, removed boo
 			return d, false
 		}
 	} else {
-		if trie.key != nil && TrieKeyEqual(q, trie.key) {
+		if trie.key != nil && key.Equal(q, trie.key) {
 			trie.key = nil
 			return depth, true
 		} else {

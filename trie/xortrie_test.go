@@ -1,22 +1,26 @@
-package xor
+package trie
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/libp2p/go-libp2p-xor/key"
+)
 
 func TestInsertRemove(t *testing.T) {
-	r := NewXorTrie()
+	r := New()
 	testSeq(r, t)
 	testSeq(r, t)
 }
 
 func testSeq(r *XorTrie, t *testing.T) {
 	for _, s := range testInsertSeq {
-		depth, _ := r.Add(TrieKey(s.key))
+		depth, _ := r.Add(key.Key(s.key))
 		if depth != s.insertedDepth {
 			t.Errorf("inserting expected %d, got %d", s.insertedDepth, depth)
 		}
 	}
 	for _, s := range testRemoveSeq {
-		depth, _ := r.Remove(TrieKey(s.key))
+		depth, _ := r.Remove(key.Key(s.key))
 		if depth != s.reachedDepth {
 			t.Errorf("removing expected %d, got %d", s.reachedDepth, depth)
 		}

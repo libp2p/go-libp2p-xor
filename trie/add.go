@@ -1,12 +1,16 @@
-package xor
+package trie
+
+import (
+	"github.com/libp2p/go-libp2p-xor/key"
+)
 
 // Add adds the key q to trie, returning a new trie.
 // Add is immutable/non-destructive: The original trie remains unchanged.
-func Add(trie *XorTrie, q TrieKey) *XorTrie {
+func Add(trie *XorTrie, q key.Key) *XorTrie {
 	return add(0, trie, q)
 }
 
-func add(depth int, trie *XorTrie, q TrieKey) *XorTrie {
+func add(depth int, trie *XorTrie, q key.Key) *XorTrie {
 	dir := q.BitAt(depth)
 	if !trie.isLeaf() {
 		s := &XorTrie{}
@@ -17,7 +21,7 @@ func add(depth int, trie *XorTrie, q TrieKey) *XorTrie {
 		if trie.key == nil {
 			return &XorTrie{key: q}
 		} else {
-			if TrieKeyEqual(trie.key, q) {
+			if key.Equal(trie.key, q) {
 				return trie
 			} else {
 				s := &XorTrie{}
