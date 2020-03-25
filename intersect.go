@@ -1,4 +1,4 @@
-package xortrie
+package xor
 
 // Intersect computes the intersection of the keys in p and q.
 // p and q must be non-nil. The returned trie is never nil.

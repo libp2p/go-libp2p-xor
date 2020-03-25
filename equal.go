@@ -1,4 +1,4 @@
-package xortrie
+package xor
 
 func XorTrieEqual(p, q *XorTrie) bool {
 	switch {

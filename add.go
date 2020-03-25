@@ -1,4 +1,4 @@
-package xortrie
+package xor
 
 // Add adds the key q to trie, returning a new trie.
 // Add is immutable/non-destructive: The original trie remains unchanged.

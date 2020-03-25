@@ -1,4 +1,4 @@
-package xortrie
+package xor
 
 // XorTrie is a trie for equal-length bit vectors, which stores values only in the leaves.
 // XorTrie node invariants:

@@ -1,4 +1,4 @@
-package xortrie
+package xor
 
 import "testing"
 
