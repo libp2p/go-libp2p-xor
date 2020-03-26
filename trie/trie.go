@@ -19,14 +19,14 @@ func New() *Trie {
 }
 
 func (trie *Trie) Depth() int {
-	return trie.depth(0)
+	return trie.DepthAtDepth(0)
 }
 
-func (trie *Trie) depth(depth int) int {
+func (trie *Trie) DepthAtDepth(depth int) int {
 	if trie.Branch[0] == nil && trie.Branch[1] == nil {
 		return depth
 	} else {
-		return max(trie.Branch[0].depth(depth+1), trie.Branch[1].depth(depth+1))
+		return max(trie.Branch[0].DepthAtDepth(depth+1), trie.Branch[1].DepthAtDepth(depth+1))
 	}
 }
 
@@ -35,6 +35,24 @@ func max(x, y int) int {
 		return x
 	}
 	return y
+}
+
+// Size returns the number of keys added to the trie.
+// In other words, it returns the number of non-empty leaves in the trie.
+func (trie *Trie) Size() int {
+	return trie.SizeAtDepth(0)
+}
+
+func (trie *Trie) SizeAtDepth(depth int) int {
+	if trie.Branch[0] == nil && trie.Branch[1] == nil {
+		if trie.IsEmpty() {
+			return 0
+		} else {
+			return 1
+		}
+	} else {
+		return trie.Branch[0].SizeAtDepth(depth+1) + trie.Branch[1].SizeAtDepth(depth+1)
+	}
 }
 
 func (trie *Trie) IsEmpty() bool {

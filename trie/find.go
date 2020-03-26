@@ -4,6 +4,9 @@ import (
 	"github.com/libp2p/go-libp2p-xor/key"
 )
 
+// Find looks for the key q in the trie.
+// It returns the depth of the leaf reached along the path of q, regardless of whether q was found in that leaf.
+// It also returns a boolean flag indicating whether the key was found.
 func (trie *Trie) Find(q key.Key) (reachedDepth int, found bool) {
 	return trie.FindAtDepth(0, q)
 }
