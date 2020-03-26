@@ -1,6 +1,7 @@
 package trie
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/libp2p/go-libp2p-xor/key"
@@ -17,6 +18,25 @@ func TestMutableAndImmutableAddSame(t *testing.T) {
 		}
 		if !Equal(mut, immut) {
 			t.Errorf("mutable trie %v differs from immutable trie %v", mut, immut)
+		}
+	}
+}
+
+func TestAddIsOrderIndependent(t *testing.T) {
+	for _, s := range testAddSameSamples {
+		base := New()
+		for _, k := range s.Keys {
+			base.Add(k)
+		}
+		for j := 0; j < 100; j++ {
+			perm := rand.Perm(len(s.Keys))
+			reordered := New()
+			for i := range s.Keys {
+				reordered.Add(s.Keys[perm[i]])
+			}
+			if !Equal(base, reordered) {
+				t.Errorf("trie %v differs from trie %v", base, reordered)
+			}
 		}
 	}
 }
