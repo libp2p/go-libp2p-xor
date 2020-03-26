@@ -56,7 +56,7 @@ type Table struct {
 	Contacts []key.Key
 }
 
-// AllTablesHealth ...
+// AllTablesHealth computes health reports for a network of nodes, whose routing contacts are given.
 func AllTablesHealth(tables []*Table) (report []*TableHealthReport) {
 	// Construct global network view trie
 	knownNodes := trie.New()
