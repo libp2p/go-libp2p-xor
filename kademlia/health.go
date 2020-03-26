@@ -1,6 +1,7 @@
 package kademlia
 
 import (
+	"encoding/json"
 	"sort"
 
 	"github.com/libp2p/go-libp2p-xor/key"
@@ -20,6 +21,11 @@ type TableHealthReport struct {
 	Bucket []*BucketHealthReport
 }
 
+func (th *TableHealthReport) String() string {
+	b, _ := json.Marshal(th)
+	return string(b)
+}
+
 // BucketHealth describes the discrepancy between a node's routing bucket and the theoretical ideal,
 // given knowledge of all nodes present in the network (aka the "known" nodes).
 type BucketHealthReport struct {
@@ -34,6 +40,11 @@ type BucketHealthReport struct {
 	// ActualUnknownContacts is the number of contacts in the node's routing table,
 	// that are not known to be in the network currently.
 	ActualUnknownContacts int
+}
+
+func (bh *BucketHealthReport) String() string {
+	b, _ := json.Marshal(bh)
+	return string(b)
 }
 
 // sortedBucketHealthReport sorts bucket health reports in ascending order of depth.

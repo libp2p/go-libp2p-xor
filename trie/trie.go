@@ -1,6 +1,8 @@
 package trie
 
 import (
+	"encoding/json"
+
 	"github.com/libp2p/go-libp2p-xor/key"
 )
 
@@ -16,6 +18,11 @@ type Trie struct {
 
 func New() *Trie {
 	return &Trie{}
+}
+
+func (trie *Trie) String() string {
+	b, _ := json.Marshal(trie)
+	return string(b)
 }
 
 func (trie *Trie) Depth() int {
