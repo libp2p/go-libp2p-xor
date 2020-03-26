@@ -33,7 +33,7 @@ func IntersectAtDepth(depth int, p, q *Trie) *Trie {
 			}
 		}
 	case !p.IsLeaf() && q.IsLeaf():
-		return Intersect(q, p)
+		return IntersectAtDepth(depth, q, p)
 	case !p.IsLeaf() && !q.IsLeaf():
 		disjointUnion := &Trie{
 			Branch: [2]*Trie{
