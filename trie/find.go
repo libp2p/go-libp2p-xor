@@ -12,13 +12,12 @@ func (trie *Trie) Find(q key.Key) (reachedDepth int, found bool) {
 }
 
 func (trie *Trie) FindAtDepth(depth int, q key.Key) (reachedDepth int, found bool) {
-	if qb := trie.Branch[q.BitAt(depth)]; qb != nil {
-		return qb.FindAtDepth(depth+1, q)
-	} else {
-		if trie.Key == nil {
-			return depth, false
-		} else {
-			return depth, key.Equal(trie.Key, q)
-		}
+	switch {
+	case trie.IsEmptyLeaf():
+		return depth, false
+	case trie.IsNonEmptyLeaf():
+		return depth, key.Equal(trie.Key, q)
+	default:
+		return trie.Branch[q.BitAt(depth)].FindAtDepth(depth+1, q)
 	}
 }

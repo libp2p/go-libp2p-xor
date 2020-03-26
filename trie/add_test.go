@@ -27,4 +27,5 @@ type testAddSameSample struct {
 
 var testAddSameSamples = []*testAddSameSample{
 	{Keys: []key.Key{{1, 3, 5, 7, 11, 13}}},
+	{Keys: []key.Key{{11, 22, 23, 25, 27, 28, 31, 32, 33}}},
 }

@@ -11,24 +11,23 @@ func (trie *Trie) Add(q key.Key) (insertedDepth int, insertedOK bool) {
 }
 
 func (trie *Trie) AddAtDepth(depth int, q key.Key) (insertedDepth int, insertedOK bool) {
-	if qb := trie.Branch[q.BitAt(depth)]; qb != nil {
-		return qb.AddAtDepth(depth+1, q)
-	} else {
-		if trie.Key == nil {
-			trie.Key = q
-			return depth, true
+	switch {
+	case trie.IsEmptyLeaf():
+		trie.Key = q
+		return depth, true
+	case trie.IsNonEmptyLeaf():
+		if key.Equal(trie.Key, q) {
+			return depth, false
 		} else {
-			if key.Equal(trie.Key, q) {
-				return depth, false
-			} else {
-				p := trie.Key
-				trie.Key = nil
-				// both Branches are nil
-				trie.Branch[0], trie.Branch[1] = &Trie{}, &Trie{}
-				trie.Branch[p.BitAt(depth)].AddAtDepth(depth+1, p)
-				return trie.Branch[q.BitAt(depth)].AddAtDepth(depth+1, q)
-			}
+			p := trie.Key
+			trie.Key = nil
+			// both branches are nil
+			trie.Branch[0], trie.Branch[1] = &Trie{}, &Trie{}
+			trie.Branch[p.BitAt(depth)].AddAtDepth(depth+1, p)
+			return trie.Branch[q.BitAt(depth)].AddAtDepth(depth+1, q)
 		}
+	default:
+		return trie.Branch[q.BitAt(depth)].AddAtDepth(depth+1, q)
 	}
 }
 
@@ -39,30 +38,30 @@ func Add(trie *Trie, q key.Key) *Trie {
 }
 
 func AddAtDepth(depth int, trie *Trie, q key.Key) *Trie {
-	dir := q.BitAt(depth)
-	if !trie.IsLeaf() {
+	switch {
+	case trie.IsEmptyLeaf():
+		return &Trie{Key: q}
+	case trie.IsNonEmptyLeaf():
+		if key.Equal(trie.Key, q) {
+			return trie
+		} else {
+			dir := q.BitAt(depth)
+			s := &Trie{}
+			if q.BitAt(depth) == trie.Key.BitAt(depth) {
+				s.Branch[dir] = AddAtDepth(depth+1, &Trie{Key: trie.Key}, q)
+				s.Branch[1-dir] = &Trie{}
+				return s
+			} else {
+				s.Branch[dir] = AddAtDepth(depth+1, &Trie{Key: trie.Key}, q)
+				s.Branch[1-dir] = &Trie{}
+			}
+			return s
+		}
+	default:
+		dir := q.BitAt(depth)
 		s := &Trie{}
 		s.Branch[dir] = AddAtDepth(depth+1, trie.Branch[dir], q)
 		s.Branch[1-dir] = trie.Branch[1-dir]
 		return s
-	} else {
-		if trie.Key == nil {
-			return &Trie{Key: q}
-		} else {
-			if key.Equal(trie.Key, q) {
-				return trie
-			} else {
-				s := &Trie{}
-				if q.BitAt(depth) == trie.Key.BitAt(depth) {
-					s.Branch[dir] = AddAtDepth(depth+1, &Trie{Key: trie.Key}, q)
-					s.Branch[1-dir] = &Trie{}
-					return s
-				} else {
-					s.Branch[dir] = AddAtDepth(depth+1, &Trie{Key: trie.Key}, q)
-					s.Branch[1-dir] = &Trie{}
-				}
-				return s
-			}
-		}
 	}
 }

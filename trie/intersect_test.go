@@ -1,12 +1,19 @@
 package trie
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/libp2p/go-libp2p-xor/key"
 )
 
 func TestIntersectRandom(t *testing.T) {
+	for i := 0; i < 100; i++ {
+		testIntersect(t, randomTestIntersectSample(10, 10, 5))
+	}
+}
+
+func TestIntersect(t *testing.T) {
 	for _, s := range testIntersectSamples {
 		testIntersect(t, s)
 	}
@@ -40,6 +47,17 @@ func setIntersect(left, right []key.Key) []key.Key {
 		}
 	}
 	return intersection
+}
+
+func randomTestIntersectSample(leftSize, rightSize, intersectSize int) *testIntersectSample {
+	keys := make([]key.Key, leftSize+rightSize-intersectSize)
+	for i := range keys {
+		keys[i] = key.Key{byte(rand.Intn(256))}
+	}
+	return &testIntersectSample{
+		LeftKeys:  keys[:leftSize],
+		RightKeys: keys[leftSize-intersectSize:],
+	}
 }
 
 type testIntersectSample struct {

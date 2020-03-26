@@ -1,20 +1,32 @@
 package key
 
-import "bytes"
+import (
+	"bytes"
+	"fmt"
+	"strings"
+)
 
 // Key is a vector of bits backed by a Go byte slice in big endian byte order and big-endian bit order.
 type Key []byte
 
-func (bs Key) BitAt(offset int) byte {
-	if bs[offset/8]&(1<<(offset%8)) == 0 {
+func (k Key) BitAt(offset int) byte {
+	if k[offset/8]&(1<<(offset%8)) == 0 {
 		return 0
 	} else {
 		return 1
 	}
 }
 
-func (bs Key) BitLen() int {
-	return 8 * len(bs)
+func (k Key) BitLen() int {
+	return 8 * len(k)
+}
+
+func (k Key) String() string {
+	s := make([]string, len(k))
+	for i, b := range k {
+		s[len(k)-i-1] = fmt.Sprintf("%08b", b)
+	}
+	return strings.Join(s, "")
 }
 
 func Equal(x, y Key) bool {
