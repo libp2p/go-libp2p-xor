@@ -2,6 +2,7 @@ package key
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -22,6 +23,11 @@ func (k Key) BitLen() int {
 }
 
 func (k Key) String() string {
+	b, _ := json.Marshal(k)
+	return string(b)
+}
+
+func (k Key) BitString() string {
 	s := make([]string, len(k))
 	for i, b := range k {
 		s[len(k)-i-1] = fmt.Sprintf("%08b", b)
