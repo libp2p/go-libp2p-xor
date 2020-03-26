@@ -12,7 +12,7 @@ func TestInsertRemove(t *testing.T) {
 	testSeq(r, t)
 }
 
-func testSeq(r *XorTrie, t *testing.T) {
+func testSeq(r *Trie, t *testing.T) {
 	for _, s := range testInsertSeq {
 		depth, _ := r.Add(key.Key(s.key))
 		if depth != s.insertedDepth {

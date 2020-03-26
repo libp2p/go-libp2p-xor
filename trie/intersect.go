@@ -6,39 +6,39 @@ import (
 
 // Intersect computes the intersection of the keys in p and q.
 // p and q must be non-nil. The returned trie is never nil.
-func Intersect(p, q *XorTrie) *XorTrie {
-	return intersect(0, p, q)
+func Intersect(p, q *Trie) *Trie {
+	return IntersectAtDepth(0, p, q)
 }
 
-func intersect(depth int, p, q *XorTrie) *XorTrie {
+func IntersectAtDepth(depth int, p, q *Trie) *Trie {
 	switch {
-	case p.isLeaf() && q.isLeaf():
-		if p.isEmpty() || q.isEmpty() {
-			return &XorTrie{} // empty set
+	case p.IsLeaf() && q.IsLeaf():
+		if p.IsEmpty() || q.IsEmpty() {
+			return &Trie{} // empty set
 		} else {
 			if key.Equal(p.Key, q.Key) {
-				return &XorTrie{Key: p.Key} // singleton
+				return &Trie{Key: p.Key} // singleton
 			} else {
-				return &XorTrie{} // empty set
+				return &Trie{} // empty set
 			}
 		}
-	case p.isLeaf() && !q.isLeaf():
-		if p.isEmpty() {
-			return &XorTrie{} // empty set
+	case p.IsLeaf() && !q.IsLeaf():
+		if p.IsEmpty() {
+			return &Trie{} // empty set
 		} else {
-			if _, found := q.find(depth, p.Key); found {
-				return &XorTrie{Key: p.Key}
+			if _, found := q.FindAtDepth(depth, p.Key); found {
+				return &Trie{Key: p.Key}
 			} else {
-				return &XorTrie{} // empty set
+				return &Trie{} // empty set
 			}
 		}
-	case !p.isLeaf() && q.isLeaf():
+	case !p.IsLeaf() && q.IsLeaf():
 		return Intersect(q, p)
-	case !p.isLeaf() && !q.isLeaf():
-		disjointUnion := &XorTrie{
-			Branch: [2]*XorTrie{
-				intersect(depth+1, p.Branch[0], q.Branch[0]),
-				intersect(depth+1, p.Branch[1], q.Branch[1]),
+	case !p.IsLeaf() && !q.IsLeaf():
+		disjointUnion := &Trie{
+			Branch: [2]*Trie{
+				IntersectAtDepth(depth+1, p.Branch[0], q.Branch[0]),
+				IntersectAtDepth(depth+1, p.Branch[1], q.Branch[1]),
 			},
 		}
 		disjointUnion.shrink()
