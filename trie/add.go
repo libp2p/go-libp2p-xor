@@ -5,7 +5,6 @@ import (
 )
 
 // Add adds the key q to the trie. Add mutates the trie.
-// TODO: Also implement an immutable version of Add.
 func (trie *Trie) Add(q key.Key) (insertedDepth int, insertedOK bool) {
 	return trie.AddAtDepth(0, q)
 }
