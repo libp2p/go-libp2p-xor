@@ -20,6 +20,14 @@ func New() *Trie {
 	return &Trie{}
 }
 
+func FromKeys(k []key.Key) *Trie {
+	t := New()
+	for _, k := range k {
+		t.Add(k)
+	}
+	return t
+}
+
 func (trie *Trie) String() string {
 	b, _ := json.Marshal(trie)
 	return string(b)
