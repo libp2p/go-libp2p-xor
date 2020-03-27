@@ -9,7 +9,7 @@ import (
 
 // Verify mutable and immutable add do the same thing.
 func TestMutableAndImmutableAddSame(t *testing.T) {
-	for _, s := range testAddSameSamples {
+	for _, s := range append(testAddSamples, randomTestAddSamples(100)...) {
 		mut := New()
 		immut := New()
 		for _, k := range s.Keys {
@@ -25,10 +25,11 @@ func TestMutableAndImmutableAddSame(t *testing.T) {
 }
 
 func TestAddIsOrderIndependent(t *testing.T) {
-	for _, s := range testAddSameSamples {
+	for _, s := range append(testAddSamples, randomTestAddSamples(100)...) {
 		base := New()
 		for _, k := range s.Keys {
 			base.Add(k)
+			base.CheckInvariant()
 		}
 		base.CheckInvariant()
 		for j := 0; j < 100; j++ {
@@ -45,11 +46,31 @@ func TestAddIsOrderIndependent(t *testing.T) {
 	}
 }
 
-type testAddSameSample struct {
+type testAddSample struct {
 	Keys []key.Key
 }
 
-var testAddSameSamples = []*testAddSameSample{
-	{Keys: []key.Key{{1, 3, 5, 7, 11, 13}}},
-	{Keys: []key.Key{{11, 22, 23, 25, 27, 28, 31, 32, 33}}},
+var testAddSamples = []*testAddSample{
+	{Keys: []key.Key{{1}, {3}, {5}, {7}, {11}, {13}}},
+	{Keys: []key.Key{{11}, {22}, {23}, {25}, {27}, {28}, {31}, {32}, {33}}},
+}
+
+func randomTestAddSamples(count int) []*testAddSample {
+	s := make([]*testAddSample, count)
+	for i := range s {
+		s[i] = randomTestAddSample(31, 2)
+	}
+	return s
+}
+
+func randomTestAddSample(setSize, keySizeByte int) *testAddSample {
+	keySet := make([]key.Key, setSize)
+	for i := range keySet {
+		k := make(key.Key, keySizeByte)
+		rand.Read(k)
+		keySet[i] = k
+	}
+	return &testAddSample{
+		Keys: keySet,
+	}
 }

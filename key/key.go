@@ -11,7 +11,7 @@ import (
 type Key []byte
 
 func (k Key) BitAt(offset int) byte {
-	if k[offset/8]&(1<<(offset%8)) == 0 {
+	if k[offset/8]&(byte(1)<<(offset%8)) == 0 {
 		return 0
 	} else {
 		return 1

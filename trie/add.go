@@ -22,7 +22,7 @@ func (trie *Trie) AddAtDepth(depth int, q key.Key) (insertedDepth int, insertedO
 			trie.Key = nil
 			// both branches are nil
 			trie.Branch[0], trie.Branch[1] = &Trie{}, &Trie{}
-			trie.Branch[p.BitAt(depth)].AddAtDepth(depth+1, p)
+			trie.Branch[p.BitAt(depth)].Key = p
 			return trie.Branch[q.BitAt(depth)].AddAtDepth(depth+1, q)
 		}
 	default:
@@ -44,23 +44,28 @@ func AddAtDepth(depth int, trie *Trie, q key.Key) *Trie {
 		if key.Equal(trie.Key, q) {
 			return trie
 		} else {
-			dir := q.BitAt(depth)
-			s := &Trie{}
-			if q.BitAt(depth) == trie.Key.BitAt(depth) {
-				s.Branch[dir] = AddAtDepth(depth+1, &Trie{Key: trie.Key}, q)
-				s.Branch[1-dir] = &Trie{}
-				return s
-			} else {
-				s.Branch[dir] = AddAtDepth(depth+1, &Trie{Key: trie.Key}, q)
-				s.Branch[1-dir] = &Trie{}
-			}
-			return s
+			return trieForTwo(depth, trie.Key, q)
 		}
 	default:
 		dir := q.BitAt(depth)
 		s := &Trie{}
 		s.Branch[dir] = AddAtDepth(depth+1, trie.Branch[dir], q)
 		s.Branch[1-dir] = trie.Branch[1-dir]
+		return s
+	}
+}
+
+func trieForTwo(depth int, p, q key.Key) *Trie {
+	pDir, qDir := p.BitAt(depth), q.BitAt(depth)
+	if qDir == pDir {
+		s := &Trie{}
+		s.Branch[pDir] = trieForTwo(depth+1, p, q)
+		s.Branch[1-pDir] = &Trie{}
+		return s
+	} else {
+		s := &Trie{}
+		s.Branch[pDir] = &Trie{Key: p}
+		s.Branch[qDir] = &Trie{Key: q}
 		return s
 	}
 }
