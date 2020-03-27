@@ -54,22 +54,22 @@ func (p *triePath) RootPath() []byte {
 
 func (p *triePath) matchesKey(k key.Key) bool {
 	// Slower, but more explicit:
-	for i, b := range p.RootPath() {
-		if k.BitAt(i) != b {
-			return false
-		}
-	}
-	return true
-	// ok, _ := p.matchesKeyWalk(k, 0)
-	// return ok
+	// for i, b := range p.RootPath() {
+	// 	if k.BitAt(i) != b {
+	// 		return false
+	// 	}
+	// }
+	// return true
+	ok, _ := p.walk(k, 0)
+	return ok
 }
 
-func (p *triePath) matchesKeyWalk(k key.Key, depthToLeaf int) (ok bool, depthToRoot int) {
+func (p *triePath) walk(k key.Key, depthToLeaf int) (ok bool, depthToRoot int) {
 	if p == nil {
 		return true, 0
 	} else {
-		parOk, parDepthToRoot := p.parent.matchesKeyWalk(k, depthToLeaf+1)
-		return k.BitAt(parDepthToRoot+1) == p.bit && parOk, parDepthToRoot + 1
+		parOk, parDepthToRoot := p.parent.walk(k, depthToLeaf+1)
+		return k.BitAt(parDepthToRoot) == p.bit && parOk, parDepthToRoot + 1
 	}
 }
 
