@@ -32,16 +32,22 @@ func testIntersect(t *testing.T, sample *testIntersectSample) {
 	for _, l := range sample.LeftKeys {
 		left.Add(l)
 	}
-	left.CheckInvariant()
+	if d := left.CheckInvariant(); d != nil {
+		t.Fatalf("left trie invariant discrepancy: %v", d)
+	}
 	for _, r := range sample.RightKeys {
 		right.Add(r)
 	}
-	right.CheckInvariant()
+	if d := right.CheckInvariant(); d != nil {
+		t.Fatalf("right trie invariant discrepancy: %v", d)
+	}
 	for _, s := range setIntersect(sample.LeftKeys, sample.RightKeys) {
 		expected.Add(s)
 	}
 	got := Intersect(left, right)
-	got.CheckInvariant()
+	if d := got.CheckInvariant(); d != nil {
+		t.Fatalf("right trie invariant discrepancy: %v", d)
+	}
 	if !Equal(expected, got) {
 		t.Errorf("intersection of %v and %v: expected %v, got %v",
 			sample.LeftKeys, sample.RightKeys, expected, got)
@@ -139,4 +145,56 @@ var testIntersectJSONSamples = []string{
     ]
 }
 	`,
+}
+
+func TestIntersectTriesFromJSON(t *testing.T) {
+	for _, json := range testIntersectJSONTries {
+		s := testIntersectTrieFromJSON(json)
+		testIntersectTries(t, s)
+	}
+}
+
+func testIntersectTries(t *testing.T, sample *testIntersectTrie) {
+	if d := sample.LeftTrie.CheckInvariant(); d != nil {
+		t.Fatalf("left trie invariant discrepancy: %v", d)
+	}
+	if d := sample.RightTrie.CheckInvariant(); d != nil {
+		t.Fatalf("right trie invariant discrepancy: %v", d)
+	}
+	expected := New()
+	for _, s := range setIntersect(sample.LeftTrie.List(), sample.RightTrie.List()) {
+		expected.Add(s)
+	}
+	got := Intersect(sample.LeftTrie, sample.RightTrie)
+	if d := got.CheckInvariant(); d != nil {
+		t.Fatalf("got trie invariant discrepancy: %v", d)
+	}
+	if !Equal(expected, got) {
+		t.Errorf("intersection of %v and %v: expected %v, got %v",
+			sample.LeftTrie, sample.RightTrie, expected, got)
+	}
+}
+
+type testIntersectTrie struct {
+	LeftTrie  *Trie
+	RightTrie *Trie
+}
+
+func testIntersectTrieFromJSON(srcJSON string) *testIntersectTrie {
+	s := &testIntersectTrie{}
+	if err := json.Unmarshal([]byte(srcJSON), s); err != nil {
+		panic(err)
+	}
+	return s
+}
+
+var testIntersectJSONTries = []string{
+	// 	`
+	// {
+	//     "LeftTrie": [
+	//     ],
+	//     "RightTrie": [
+	//     ]
+	// }
+	// 	`,
 }

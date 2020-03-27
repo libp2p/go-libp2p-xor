@@ -4,35 +4,70 @@ import (
 	"github.com/libp2p/go-libp2p-xor/key"
 )
 
-// CheckInvariant panics of the trie does not meet its invariant.
-func (trie *Trie) CheckInvariant() {
-	trie.checkInvariant(0, nil)
+type InvariantDiscrepancy struct {
+	Reason            string
+	PathToDiscrepancy string
+	KeyAtDiscrepancy  string
 }
 
-func (trie *Trie) checkInvariant(depth int, pathSoFar *triePath) {
+// CheckInvariant panics of the trie does not meet its invariant.
+func (trie *Trie) CheckInvariant() *InvariantDiscrepancy {
+	return trie.checkInvariant(0, nil)
+}
+
+func (trie *Trie) checkInvariant(depth int, pathSoFar *triePath) *InvariantDiscrepancy {
 	switch {
-	case trie.IsEmptyLeaf(): // ok
+	case trie.IsEmptyLeaf():
+		return nil
 	case trie.IsNonEmptyLeaf():
 		if !pathSoFar.matchesKey(trie.Key) {
-			panic("key found at invalid location in trie")
+			return &InvariantDiscrepancy{
+				Reason:            "key found at invalid location in trie",
+				PathToDiscrepancy: pathSoFar.BitString(),
+				KeyAtDiscrepancy:  trie.Key.BitString(),
+			}
 		}
+		return nil
 	default:
 		if trie.IsEmpty() {
 			b0, b1 := trie.Branch[0], trie.Branch[1]
-			b0.checkInvariant(depth+1, pathSoFar.Push(0))
-			b1.checkInvariant(depth+1, pathSoFar.Push(1))
+			if d0 := b0.checkInvariant(depth+1, pathSoFar.Push(0)); d0 != nil {
+				return d0
+			}
+			if d1 := b1.checkInvariant(depth+1, pathSoFar.Push(1)); d1 != nil {
+				return d1
+			}
 			switch {
 			case b0.IsEmptyLeaf() && b1.IsEmptyLeaf():
-				panic("intermediate node with two empty leaves")
+				return &InvariantDiscrepancy{
+					Reason:            "intermediate node with two empty leaves",
+					PathToDiscrepancy: pathSoFar.BitString(),
+					KeyAtDiscrepancy:  "none",
+				}
 			case b0.IsEmptyLeaf() && b1.IsNonEmptyLeaf():
-				panic("intermediate node with one empty leaf")
+				return &InvariantDiscrepancy{
+					Reason:            "intermediate node with one empty leaf/0",
+					PathToDiscrepancy: pathSoFar.BitString(),
+					KeyAtDiscrepancy:  "none",
+				}
 			case b0.IsNonEmptyLeaf() && b1.IsEmptyLeaf():
-				panic("intermediate node with one empty leaf")
+				return &InvariantDiscrepancy{
+					Reason:            "intermediate node with one empty leaf/1",
+					PathToDiscrepancy: pathSoFar.BitString(),
+					KeyAtDiscrepancy:  "none",
+				}
+			default:
+				return nil
 			}
 		} else {
-			panic("intermediate node with a key")
+			return &InvariantDiscrepancy{
+				Reason:            "intermediate node with a key",
+				PathToDiscrepancy: pathSoFar.BitString(),
+				KeyAtDiscrepancy:  trie.Key.BitString(),
+			}
 		}
 	}
+	panic("unreachable")
 }
 
 type triePath struct {
@@ -73,19 +108,19 @@ func (p *triePath) walk(k key.Key, depthToLeaf int) (ok bool, depthToRoot int) {
 	}
 }
 
-func (p *triePath) String() string {
-	return p.string(0)
+func (p *triePath) BitString() string {
+	return p.bitString(0)
 }
 
-func (p *triePath) string(depthToLeaf int) string {
+func (p *triePath) bitString(depthToLeaf int) string {
 	if p == nil {
 		return ""
 	} else {
 		switch {
 		case p.bit == 0:
-			return p.parent.string(depthToLeaf+1) + "0"
+			return p.parent.bitString(depthToLeaf+1) + "0"
 		case p.bit == 1:
-			return p.parent.string(depthToLeaf+1) + "1"
+			return p.parent.bitString(depthToLeaf+1) + "1"
 		default:
 			panic("bit digit > 1")
 		}

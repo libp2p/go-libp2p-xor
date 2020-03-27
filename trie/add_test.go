@@ -16,8 +16,12 @@ func TestMutableAndImmutableAddSame(t *testing.T) {
 			mut.Add(k)
 			immut = Add(immut, k)
 		}
-		mut.CheckInvariant()
-		immut.CheckInvariant()
+		if d := mut.CheckInvariant(); d != nil {
+			t.Fatalf("mutable trie invariant discrepancy: %v", d)
+		}
+		if d := immut.CheckInvariant(); d != nil {
+			t.Fatalf("immutable trie invariant discrepancy: %v", d)
+		}
 		if !Equal(mut, immut) {
 			t.Errorf("mutable trie %v differs from immutable trie %v", mut, immut)
 		}
@@ -29,16 +33,19 @@ func TestAddIsOrderIndependent(t *testing.T) {
 		base := New()
 		for _, k := range s.Keys {
 			base.Add(k)
-			base.CheckInvariant()
 		}
-		base.CheckInvariant()
+		if d := base.CheckInvariant(); d != nil {
+			t.Fatalf("base trie invariant discrepancy: %v", d)
+		}
 		for j := 0; j < 100; j++ {
 			perm := rand.Perm(len(s.Keys))
 			reordered := New()
 			for i := range s.Keys {
 				reordered.Add(s.Keys[perm[i]])
 			}
-			reordered.CheckInvariant()
+			if d := reordered.CheckInvariant(); d != nil {
+				t.Fatalf("reordered trie invariant discrepancy: %v", d)
+			}
 			if !Equal(base, reordered) {
 				t.Errorf("trie %v differs from trie %v", base, reordered)
 			}
