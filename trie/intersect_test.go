@@ -32,13 +32,16 @@ func testIntersect(t *testing.T, sample *testIntersectSample) {
 	for _, l := range sample.LeftKeys {
 		left.Add(l)
 	}
+	left.CheckInvariant()
 	for _, r := range sample.RightKeys {
 		right.Add(r)
 	}
+	right.CheckInvariant()
 	for _, s := range setIntersect(sample.LeftKeys, sample.RightKeys) {
 		expected.Add(s)
 	}
 	got := Intersect(left, right)
+	got.CheckInvariant()
 	if !Equal(expected, got) {
 		t.Errorf("intersection of %v and %v: expected %v, got %v",
 			sample.LeftKeys, sample.RightKeys, expected, got)
@@ -112,6 +115,27 @@ var testIntersectJSONSamples = []string{
     "RightKeys": [
         "gAlMTjoCy6ZDZFN/0okF65fxscCLVxnQhlJsyfp6uWU=",
         "qAISv6yZjs3WWlDC89iJUSdq45F0D/1y9fLnsPvavdA="
+    ]
+}
+	`,
+	`
+{
+    "LeftKeys": [
+        "BXmU8txOqn8ExHzXuXRtHm2XM99uD8lsgPo8OdDcNYE=",
+        "hVzcamVYfIqs4IlrVIM1qRalqTh8OMrlAeqwgJTI2xo=",
+        "JbILHEM3RcA+ksq0BvU+9Zfc+jnpsxPUQLe9lrHqBwc=",
+        "VUeFiK5V64F8G2rvnIyoopfOzICF0h79FmeiLQqrVAI=",
+        "tYRdsKlUTbTXOpgVjUZtzh2DRG0e5nPXIrkN60PI5GE=",
+        "LatyclJiSPEaCoLxbabddv7Rqrsy+J1hf2Pd9BmmN1U=",
+        "XX0wXrGF4IytkKmStxesXOiGFK+dm5ran6lWu7xNhIw=",
+        "PcZb8TBEHhEqpFfaRWyhit3Uc03895uOkMgiiBgW9Uk="
+    ],
+    "RightKeys": [
+        "BXmU8txOqn8ExHzXuXRtHm2XM99uD8lsgPo8OdDcNYE=",
+        "hVzcamVYfIqs4IlrVIM1qRalqTh8OMrlAeqwgJTI2xo=",
+        "VUeFiK5V64F8G2rvnIyoopfOzICF0h79FmeiLQqrVAI=",
+        "tYRdsKlUTbTXOpgVjUZtzh2DRG0e5nPXIrkN60PI5GE=",
+        "XX0wXrGF4IytkKmStxesXOiGFK+dm5ran6lWu7xNhIw="
     ]
 }
 	`,
