@@ -4,6 +4,25 @@ import (
 	"github.com/libp2p/go-libp2p-xor/key"
 )
 
+func IntersectKeySlices(p, q []key.Key) []key.Key {
+	hat := []key.Key{}
+	for _, p := range p {
+		if keyIsIn(p, q) && !keyIsIn(p, hat) {
+			hat = append(hat, p)
+		}
+	}
+	return hat
+}
+
+func keyIsIn(q key.Key, s []key.Key) bool {
+	for _, s := range s {
+		if key.Equal(q, s) {
+			return true
+		}
+	}
+	return false
+}
+
 // Intersect computes the intersection of the keys in p and q.
 // p and q must be non-nil. The returned trie is never nil.
 func Intersect(p, q *Trie) *Trie {
