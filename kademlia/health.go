@@ -2,6 +2,8 @@ package kademlia
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
 	"sort"
 
 	"github.com/libp2p/go-libp2p-xor/key"
@@ -159,6 +161,18 @@ func walkBucketHealth(depth int, node key.Key, nodeTable, knownNodes *trie.Trie)
 func bucketReportFromTries(depth int, actualBucket, maxBucket *trie.Trie) *BucketHealthReport {
 	actualKnown := trie.IntersectAtDepth(depth, actualBucket, maxBucket)
 	actualKnownSize := actualKnown.Size()
+	//
+	actualBucket.CheckInvariant()
+	maxBucket.CheckInvariant()
+	expect := trie.FromKeys(trie.IntersectKeySlices(actualBucket.List(), maxBucket.List()))
+	if trie.Equal(actualKnown, expect) {
+		// fmt.Fprintf(os.Stderr, "OK:\ndepth=%d\nmaxBucket=%v\nactualBucket=%v\nactualKnown=%v\n",
+		// 	depth, maxBucket.List(), actualBucket.List(), actualKnown.List())
+	} else {
+		fmt.Fprintf(os.Stderr, "CORRUPT:\ndepth=%d\nmaxBucket=%v\nactualBucket=%v\nactualKnown=%v\n",
+			depth, maxBucket, actualBucket, actualKnown)
+	}
+	//
 	return &BucketHealthReport{
 		Depth:                 depth,
 		MaxKnownContacts:      maxBucket.Size(),
