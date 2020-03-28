@@ -81,6 +81,14 @@ func AllTablesHealth(tables []*Table) (report []*TableHealthReport) {
 	return
 }
 
+func TableHealthFromSets(node key.Key, nodeContacts []key.Key, knownNodes []key.Key) *TableHealthReport {
+	knownNodesTrie := trie.New()
+	for _, k := range knownNodes {
+		knownNodesTrie.Add(k)
+	}
+	return TableHealth(node, nodeContacts, knownNodesTrie)
+}
+
 // TableHealth computes the health report for a node,
 // given its routing contacts and a list of all known nodes in the network currently.
 func TableHealth(node key.Key, nodeContacts []key.Key, knownNodes *trie.Trie) *TableHealthReport {
@@ -114,6 +122,7 @@ func walkBucketHealth(depth int, node key.Key, nodeTable, knownNodes *trie.Trie)
 	} else {
 		dir := node.BitAt(depth)
 		switch {
+		//
 		case knownNodes == nil || knownNodes.IsEmptyLeaf():
 			r := walkBucketHealth(depth+1, node, nodeTable.Branch[dir], nil)
 			return append(r,
@@ -135,12 +144,12 @@ func walkBucketHealth(depth int, node key.Key, nodeTable, knownNodes *trie.Trie)
 					})
 			} else {
 				r := walkBucketHealth(depth+1, node, nodeTable.Branch[dir], nil)
-				return append(r, bucketReportFromTries(depth, nodeTable.Branch[1-dir], knownNodes))
+				return append(r, bucketReportFromTries(depth+1, nodeTable.Branch[1-dir], knownNodes))
 			}
 		case !knownNodes.IsLeaf():
 			r := walkBucketHealth(depth+1, node, nodeTable.Branch[dir], knownNodes.Branch[dir])
 			return append(r,
-				bucketReportFromTries(depth, nodeTable.Branch[1-dir], knownNodes.Branch[1-dir]))
+				bucketReportFromTries(depth+1, nodeTable.Branch[1-dir], knownNodes.Branch[1-dir]))
 		default:
 			panic("unreachable")
 		}
@@ -148,7 +157,7 @@ func walkBucketHealth(depth int, node key.Key, nodeTable, knownNodes *trie.Trie)
 }
 
 func bucketReportFromTries(depth int, actualBucket, maxBucket *trie.Trie) *BucketHealthReport {
-	actualKnown := trie.Intersect(actualBucket, maxBucket)
+	actualKnown := trie.IntersectAtDepth(depth, actualBucket, maxBucket)
 	actualKnownSize := actualKnown.Size()
 	return &BucketHealthReport{
 		Depth:                 depth,

@@ -188,13 +188,4 @@ func testIntersectTrieFromJSON(srcJSON string) *testIntersectTrie {
 	return s
 }
 
-var testIntersectJSONTries = []string{
-	// 	`
-	// {
-	//     "LeftTrie": [
-	//     ],
-	//     "RightTrie": [
-	//     ]
-	// }
-	// 	`,
-}
+var testIntersectJSONTries = []string{}
