@@ -164,7 +164,7 @@ func bucketReportFromTries(depth int, actualBucket, maxBucket *trie.Trie) *Bucke
 	//
 	actualBucket.CheckInvariant()
 	maxBucket.CheckInvariant()
-	expect := trie.FromKeys(trie.IntersectKeySlices(actualBucket.List(), maxBucket.List()))
+	expect := trie.FromKeysAtDepth(depth, trie.IntersectKeySlices(actualBucket.List(), maxBucket.List()))
 	if trie.Equal(actualKnown, expect) {
 		// fmt.Fprintf(os.Stderr, "OK:\ndepth=%d\nmaxBucket=%v\nactualBucket=%v\nactualKnown=%v\n",
 		// 	depth, maxBucket.List(), actualBucket.List(), actualKnown.List())
