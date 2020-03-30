@@ -28,6 +28,14 @@ func FromKeys(k []key.Key) *Trie {
 	return t
 }
 
+func FromKeysAtDepth(depth int, k []key.Key) *Trie {
+	t := New()
+	for _, k := range k {
+		t.AddAtDepth(depth, k)
+	}
+	return t
+}
+
 func (trie *Trie) String() string {
 	b, _ := json.Marshal(trie)
 	return string(b)
