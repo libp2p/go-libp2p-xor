@@ -9,8 +9,35 @@ from .xor import *
 class Event:
     lookup_id: str
     stamp_ns: int
-    target: Key
-    cause: Key
+    node: Key  # node performing the lookup
+    target: Key  # target of the lookup
+    request: StateUpdateEvent
+    response: StateUpdateEvent
+
+    def heard(self):
+        req = self.request.heard if self.request else []
+        resp = self.response.heard if self.response else []
+        return req + resp
+
+    def waiting(self):
+        req = self.request.waiting if self.request else []
+        resp = self.response.waiting if self.response else []
+        return req + resp
+
+    def queried(self):
+        req = self.request.queried if self.request else []
+        resp = self.response.queried if self.response else []
+        return req + resp
+
+    def unreachable(self):
+        req = self.request.unreachable if self.request else []
+        resp = self.response.unreachable if self.response else []
+        return req + resp
+
+
+@dataclass
+class StateUpdateEvent:
+    cause: Key  # peer that caused this event
     source: Key
     heard: List[Key]
     waiting: List[Key]
@@ -18,24 +45,37 @@ class Event:
     unreachable: List[Key]
 
 
+def parse_state_update_from_json(data):
+    if not data:
+        return None
+    else:
+        return StateUpdateEvent(
+            cause=key_from_base64(data["Cause"]["Kad"]),
+            source=key_from_base64(data["Source"]["Kad"]),
+            heard=[key_from_base64(id["Kad"]) for id in data.get("Heard", [])],
+            waiting=[key_from_base64(id["Kad"]) for id in data.get("Waiting", [])],
+            queried=[key_from_base64(id["Kad"]) for id in data.get("Queried", [])],
+            unreachable=[key_from_base64(id["Kad"]) for id in data.get("Unreachable", [])],
+        )
+
+
+def parse_event_from_json(data):
+    return Event(
+        lookup_id=data["ID"],
+        stamp_ns=data["XXX"],  # XXX
+        node=key_from_base64(data["Node"]["Kad"]),
+        target=key_from_base64(data["Key"]["Kad"]),
+        request=parse_state_update_from_json(data.get("Request")),
+        response=parse_state_update_from_json(data.get("Response")),
+    )
+
+
 def load_file(filename: str):
     events = []
     with open(filename) as f:
         for line in f:
             data = json.loads(line)
-            events.append(
-                Event(
-                    lookup_id=data["eventID"],
-                    stamp_ns=data["ts"],
-                    target=key_from_base64(data.get("targetKad")),
-                    cause=key_from_base64_optional(data.get("causeKad")),
-                    source=key_from_base64_optional(data.get("sourceKad")),
-                    heard=[key_from_base64(h) for h in data.get("heardKad", [])],
-                    waiting=[key_from_base64(h) for h in data.get("waitingKad", [])],
-                    queried=[key_from_base64(h) for h in data.get("queriedKad", [])],
-                    unreachable=[key_from_base64(h) for h in data.get("unreachableKad", [])],
-                )
-            )
+            events.append(parse_event_from_json(data))
     return events
 
 

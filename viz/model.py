@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import List
 
 from .events import *
 from .xor import *
@@ -11,7 +11,7 @@ class LookupModel:
     start_ns: int
     stop_ns: int
     target: Key
-    # used is a dict of all keys of peers that were used during the lookup
+    # used is a dict of all keys of peers that were attempted during the lookup
     used: List[Key]
     events: List[events]
 
@@ -42,17 +42,27 @@ class LookupModel:
 
 def model_from_events(events):
     if len(events) < 2:
-        raise "Not enough events to plot"
-    p = {}
+        raise Exception("Not enough events to plot")
+
+    did = {}
+    used = []
+
+    def push(x):
+        if not x:
+            return
+        if not did.get(x):
+            did[x] = True
+            used.append(x)
+
     for e in events:
-        if e.cause and not p[e.cause]:
-            p[e.cause] = True
-            used.append(e.cause)
-        if e.source and not p[e.source]:
-            p[e.source] = True
-            used.append(e.source)
+        if e.request:
+            push(e.request.cause)
+            push(e.request.source)
+        if e.response:
+            push(e.response.cause)
+            push(e.response.source)
     return LookupModel(
-        id=events[0].id,
+        id=events[0].lookup_id,
         start_ns=events[0].stamp_ns,
         stop_ns=events[-1].stamp_ns,
         target=events[0].target,

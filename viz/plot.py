@@ -27,31 +27,23 @@ def plot_lookup(ax, m: LookupModel):
         ax.add_line(h_line)
     # plot state changes
     x, y, s, c = [], [], [], []
+
+    def push(e_, k_, c_):
+        ex, ey = m.event_key_xy(e_, k_)
+        x.append(ex)
+        y.append(ey)
+        c.append(c_)
+        s.append(1.0)
+
     for e in model.events:
-        for h in e.heard:
-            ex, ey = m.event_key_xy(e, h)
-            x.append(ex)
-            y.append(ey)
-            c.append('#80e0c0')
-            s.append(1.0)
-        for h in e.waiting:
-            ex, ey = m.event_key_xy(e, h)
-            x.append(ex)
-            y.append(ey)
-            c.append('#80c0e0')
-            s.append(1.0)
-        for h in e.queried:
-            ex, ey = m.event_key_xy(e, h)
-            x.append(ex)
-            y.append(ey)
-            c.append('#d0a0e0')
-            s.append(1.0)
-        for h in e.unreachable:
-            ex, ey = m.event_key_xy(e, h)
-            x.append(ex)
-            y.append(ey)
-            c.append('#e0a0b0')
-            s.append(1.0)
+        for k in e.heard():
+            push(e, k, '#80e0c0')
+        for k in e.waiting():
+            push(e, k, '#80c0e0')
+        for k in e.queried():
+            push(e, k, '#d0a0e0')
+        for k in e.unreachable():
+            push(e, k, '#e0a0b0')
         ax.scatter(x, y, s=s, c=c, alpha=0.7, zorder=5, marker='s')
         # XXX: lookup path
         # customize axes
