@@ -18,6 +18,7 @@ def plot_lookup(ax, m: LookupModel):
             [0, 1.0],
             color='#d0d0d0')
         ax.add_line(v_line)
+
     # plot horizontal grid lines on peers that were used
     for u in model.used:
         h_line = mlines.Line2D(
@@ -25,6 +26,7 @@ def plot_lookup(ax, m: LookupModel):
             [m.key_to_y(u), m.key_to_y(u)],
             color='#d0d0d0')
         ax.add_line(h_line)
+
     # plot state changes
     x, y, s, c = [], [], [], []
 
@@ -45,12 +47,38 @@ def plot_lookup(ax, m: LookupModel):
         for k in e.unreachable():
             push(e, k, '#e0a0b0')
         ax.scatter(x, y, s=s, c=c, alpha=0.7, zorder=5, marker='s')
-        # XXX: lookup path
-        # customize axes
-        set_yticks_for_model(ax, m)
-        set_yticks_for_model(ax, m)
-        style_axis(ax)
-        ax.set_title("lookup {}".format(m.id))
+
+    # plot queries
+    for q in model.queries:
+        q_line = mlines.Line2D(
+            [m.stamp_to_x(q.request.stamp_ns), m.stamp_to_x(q.response.stamp_ns)],
+            [m.key_to_y(q.peer), m.key_to_y(q.peer)],
+            color=color_for_query_outcome(q))
+        ax.add_line(q_line)
+
+    # plot lookup path
+    for q in model.find_path:
+        q_line = mlines.Line2D(
+            [m.stamp_to_x(q.request.stamp_ns), m.stamp_to_x(q.response.stamp_ns)],
+            [m.key_to_y(q.peer), m.key_to_y(q.peer)],
+            linewidth=3.0,
+            color='#e0e0c0')
+        ax.add_line(q_line)
+
+    # customize axes
+    set_yticks_for_model(ax, m)
+    set_yticks_for_model(ax, m)
+    style_axis(ax)
+    ax.set_title("lookup {}".format(m.id))
+
+
+def color_for_query_outcome(q):
+    if q.outcome == QUERY_SUCCESS:
+        return '#50c050'
+    elif q.outcome == QUERY_UNREACHABLE:
+        return '#c05050'
+    else:
+        return '#805080'
 
 
 def set_xticks_for_model(ax, m: LookupModel):
