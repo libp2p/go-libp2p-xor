@@ -11,7 +11,7 @@ import (
 	kbucket "github.com/libp2p/go-libp2p-kbucket"
 )
 
-// XXX: update uses
+// TODO: Find a way to prohibit casting bytes to Key.
 func KbucketIDToKey(id kbucket.ID) Key {
 	return Key(reverseBytesBits(id))
 }
