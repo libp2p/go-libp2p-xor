@@ -35,13 +35,13 @@ func TestBitEndiannes(t *testing.T) {
 
 func TestKeyString(t *testing.T) {
 	key := Key{0x05, 0xf0}
-	if key.BitString() != "1111000000000101" {
+	if key.BitString() != "0000010111110000" {
 		t.Errorf("unexpected bit string: %s", key.BitString())
 	}
 }
 
 func TestBitAt(t *testing.T) {
-	key := Key{0x21, 0x84}
+	key := Key{0x84, 0x21}
 	switch {
 	case key.BitAt(0) != 1:
 		t.Errorf("bit 0 flipped")

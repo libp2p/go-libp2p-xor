@@ -39,7 +39,7 @@ func randomTestTableHealthSubsetSamples(contactSize, knownSize int) *testTableHe
 func randomKey(size int) key.Key {
 	k := make([]byte, size)
 	rand.Read(k)
-	return key.Key(k)
+	return key.BytesKey(k)
 }
 
 type testTableHealthSample struct {

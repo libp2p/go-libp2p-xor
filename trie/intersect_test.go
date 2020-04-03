@@ -69,7 +69,7 @@ func setIntersect(left, right []key.Key) []key.Key {
 func randomTestIntersectSample(leftSize, rightSize, intersectSize int) *testIntersectSample {
 	keys := make([]key.Key, leftSize+rightSize-intersectSize)
 	for i := range keys {
-		keys[i] = key.Key{byte(rand.Intn(256))}
+		keys[i] = key.ByteKey(byte(rand.Intn(256)))
 	}
 	return &testIntersectSample{
 		LeftKeys:  keys[:leftSize],
@@ -92,16 +92,16 @@ func testIntersectSampleFromJSON(srcJSON string) *testIntersectSample {
 
 var testIntersectSamples = []*testIntersectSample{
 	{
-		LeftKeys:  []key.Key{{1, 2, 3}},
-		RightKeys: []key.Key{{1, 3, 5}},
+		LeftKeys:  []key.Key{key.ByteKey(1), key.ByteKey(2), key.ByteKey(3)},
+		RightKeys: []key.Key{key.ByteKey(1), key.ByteKey(3), key.ByteKey(5)},
 	},
 	{
-		LeftKeys:  []key.Key{{1, 2, 3, 4, 5, 6}},
-		RightKeys: []key.Key{{3, 5, 7}},
+		LeftKeys:  []key.Key{key.ByteKey(1), key.ByteKey(2), key.ByteKey(3), key.ByteKey(4), key.ByteKey(5), key.ByteKey(6)},
+		RightKeys: []key.Key{key.ByteKey(3), key.ByteKey(5), key.ByteKey(7)},
 	},
 	{
-		LeftKeys:  []key.Key{{23, 3, 7, 13, 17}},
-		RightKeys: []key.Key{{2, 11, 17, 19, 23}},
+		LeftKeys:  []key.Key{key.ByteKey(23), key.ByteKey(3), key.ByteKey(7), key.ByteKey(13), key.ByteKey(17)},
+		RightKeys: []key.Key{key.ByteKey(2), key.ByteKey(11), key.ByteKey(17), key.ByteKey(19), key.ByteKey(23)},
 	},
 }
 

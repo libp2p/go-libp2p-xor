@@ -11,14 +11,21 @@ import (
 	kbucket "github.com/libp2p/go-libp2p-kbucket"
 )
 
-// TODO: Find a way to prohibit casting bytes to Key.
 func KbucketIDToKey(id kbucket.ID) Key {
-	return Key(reverseBytesBits(id))
+	return Key(id)
 }
 
-// Key is a vector of bits backed by a Go byte slice in big endian byte order and big-endian bit order.
+func ByteKey(b byte) Key {
+	return Key{b}
+}
+
+func BytesKey(b []byte) Key {
+	return Key(b)
+}
+
+// Key is a vector of bits backed by a Go byte slice.
 // First byte is most significant.
-// First bit in each byte is most significant.
+// First bit (in each byte) is least significant.
 type Key []byte
 
 // reverseBytesBits reverses the bit-endianness of each byte in a slice.
@@ -31,7 +38,7 @@ func reverseBytesBits(blob []byte) []byte {
 }
 
 func (k Key) BitAt(offset int) byte {
-	if k[offset/8]&(byte(1)<<(offset%8)) == 0 {
+	if k[offset/8]&(byte(1)<<(7-offset%8)) == 0 {
 		return 0
 	} else {
 		return 1
@@ -39,7 +46,7 @@ func (k Key) BitAt(offset int) byte {
 }
 
 func (k Key) NormInt() *big.Int {
-	return big.NewInt(0).SetBytes(reverseBytesBits(k))
+	return big.NewInt(0).SetBytes(k)
 }
 
 func (k Key) BitLen() int {
@@ -51,10 +58,11 @@ func (k Key) String() string {
 	return string(b)
 }
 
+// BitString returns a bit representation of the key, in descending order of significance.
 func (k Key) BitString() string {
 	s := make([]string, len(k))
 	for i, b := range k {
-		s[len(k)-i-1] = fmt.Sprintf("%08b", b)
+		s[i] = fmt.Sprintf("%08b", b)
 	}
 	return strings.Join(s, "")
 }
@@ -64,7 +72,7 @@ func Equal(x, y Key) bool {
 }
 
 func Xor(x, y Key) Key {
-	z := make([]byte, len(x))
+	z := make(Key, len(x))
 	for i := range x {
 		z[i] = x[i] ^ y[i]
 	}

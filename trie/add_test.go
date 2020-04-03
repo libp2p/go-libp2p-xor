@@ -58,8 +58,11 @@ type testAddSample struct {
 }
 
 var testAddSamples = []*testAddSample{
-	{Keys: []key.Key{{1}, {3}, {5}, {7}, {11}, {13}}},
-	{Keys: []key.Key{{11}, {22}, {23}, {25}, {27}, {28}, {31}, {32}, {33}}},
+	{Keys: []key.Key{key.ByteKey(1), key.ByteKey(3), key.ByteKey(5), key.ByteKey(7), key.ByteKey(11), key.ByteKey(13)}},
+	{Keys: []key.Key{
+		key.ByteKey(11), key.ByteKey(22), key.ByteKey(23), key.ByteKey(25),
+		key.ByteKey(27), key.ByteKey(28), key.ByteKey(31), key.ByteKey(32), key.ByteKey(33),
+	}},
 }
 
 func randomTestAddSamples(count int) []*testAddSample {
@@ -73,9 +76,9 @@ func randomTestAddSamples(count int) []*testAddSample {
 func randomTestAddSample(setSize, keySizeByte int) *testAddSample {
 	keySet := make([]key.Key, setSize)
 	for i := range keySet {
-		k := make(key.Key, keySizeByte)
+		k := make([]byte, keySizeByte)
 		rand.Read(k)
-		keySet[i] = k
+		keySet[i] = key.BytesKey(k)
 	}
 	return &testAddSample{
 		Keys: keySet,

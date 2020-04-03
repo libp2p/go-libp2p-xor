@@ -14,15 +14,15 @@ func TestInsertRemove(t *testing.T) {
 
 func testSeq(r *Trie, t *testing.T) {
 	for _, s := range testInsertSeq {
-		depth, _ := r.Add(key.Key(s.key))
+		depth, _ := r.Add(key.BytesKey(s.key))
 		if depth != s.insertedDepth {
-			t.Errorf("inserting expected %d, got %d", s.insertedDepth, depth)
+			t.Errorf("inserting expected depth %d, got %d", s.insertedDepth, depth)
 		}
 	}
 	for _, s := range testRemoveSeq {
-		depth, _ := r.Remove(key.Key(s.key))
+		depth, _ := r.Remove(key.BytesKey(s.key))
 		if depth != s.reachedDepth {
-			t.Errorf("removing expected %d, got %d", s.reachedDepth, depth)
+			t.Errorf("removing expected depth %d, got %d", s.reachedDepth, depth)
 		}
 	}
 }
@@ -31,20 +31,20 @@ var testInsertSeq = []struct {
 	key           []byte
 	insertedDepth int
 }{
-	{key: []byte{0x0}, insertedDepth: 0},
-	{key: []byte{0x1}, insertedDepth: 1},
-	{key: []byte{0x8}, insertedDepth: 4},
-	{key: []byte{0x3}, insertedDepth: 2},
-	{key: []byte{0x4}, insertedDepth: 3},
+	{key: []byte{0x00}, insertedDepth: 0},
+	{key: []byte{0x80}, insertedDepth: 1},
+	{key: []byte{0x10}, insertedDepth: 4},
+	{key: []byte{0xc0}, insertedDepth: 2},
+	{key: []byte{0x20}, insertedDepth: 3},
 }
 
 var testRemoveSeq = []struct {
 	key          []byte
 	reachedDepth int
 }{
-	{key: []byte{0x0}, reachedDepth: 4},
-	{key: []byte{0x8}, reachedDepth: 3},
-	{key: []byte{0x4}, reachedDepth: 1},
-	{key: []byte{0x1}, reachedDepth: 2},
-	{key: []byte{0x3}, reachedDepth: 0},
+	{key: []byte{0x00}, reachedDepth: 4},
+	{key: []byte{0x10}, reachedDepth: 3},
+	{key: []byte{0x20}, reachedDepth: 1},
+	{key: []byte{0x80}, reachedDepth: 2},
+	{key: []byte{0xc0}, reachedDepth: 0},
 }
