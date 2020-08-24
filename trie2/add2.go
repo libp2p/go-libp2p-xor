@@ -13,7 +13,7 @@ func (trie *Trie) AddAtDepth(depth int, q Key) (insertedDepth int, insertedOK bo
 			if q.Equal(trie.Key) {
 				return depth, false
 			} else {
-				// trie.Key.Len() > q.Len()
+				// trie.Key.Len() > depth
 				trie.Key, q = q, trie.Key
 			}
 		}
