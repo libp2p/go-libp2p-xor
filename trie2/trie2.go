@@ -26,3 +26,25 @@ func (trie *Trie) IsEmptyLeaf() bool {
 func (trie *Trie) IsNonEmptyLeaf() bool {
 	return !trie.IsEmpty() && trie.IsLeaf()
 }
+
+func (trie *Trie) Size() int {
+	return trie.SizeAtDepth(0)
+}
+
+func (trie *Trie) SizeAtDepth(depth int) int {
+	if trie.IsLeaf() {
+		if trie.IsEmpty() {
+			return 0
+		} else {
+			return 1
+		}
+	} else {
+		var here int
+		if trie.IsEmpty() {
+			here = 0
+		} else {
+			here = 1
+		}
+		return here + trie.Branch[0].SizeAtDepth(depth+1) + trie.Branch[1].SizeAtDepth(depth+1)
+	}
+}
