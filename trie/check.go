@@ -67,7 +67,6 @@ func (trie *Trie) checkInvariant(depth int, pathSoFar *triePath) *InvariantDiscr
 			}
 		}
 	}
-	panic("unreachable")
 }
 
 type triePath struct {
