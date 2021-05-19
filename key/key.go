@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
-	"math/bits"
 	"strings"
 
 	kbucket "github.com/libp2p/go-libp2p-kbucket"
@@ -27,15 +26,6 @@ func BytesKey(b []byte) Key {
 // First byte is most significant.
 // First bit (in each byte) is least significant.
 type Key []byte
-
-// reverseBytesBits reverses the bit-endianness of each byte in a slice.
-func reverseBytesBits(blob []byte) []byte {
-	r := make([]byte, len(blob))
-	for i := range blob {
-		r[i] = bits.Reverse8(blob[i])
-	}
-	return r
-}
 
 func (k Key) BitAt(offset int) byte {
 	if k[offset/8]&(byte(1)<<(7-offset%8)) == 0 {
