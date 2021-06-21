@@ -26,3 +26,21 @@ func (trie *Trie) RemoveAtDepth(depth int, q key.Key) (reachedDepth int, removed
 		}
 	}
 }
+
+func Remove(trie *Trie, q key.Key) (*Trie) {
+	return RemoveAtDepth(0, trie, q)
+}
+
+func RemoveAtDepth(depth int, trie *Trie, q key.Key) (*Trie) {
+	switch {
+	case trie.IsEmptyLeaf() || trie.IsNonEmptyLeaf():
+		return &Trie{}
+	default:
+		dir := q.BitAt(depth)
+		copy := &Trie{}
+		copy.Branch[dir] = RemoveAtDepth(depth + 1, trie.Branch[dir], q)
+		copy.Branch[1 - dir] = trie.Branch[1 - dir]
+		copy.shrink()
+		return copy
+	}
+}
