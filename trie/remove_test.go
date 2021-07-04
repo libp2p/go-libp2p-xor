@@ -1,8 +1,9 @@
 package trie
 
 import (
-	"testing"
+	"github.com/libp2p/go-libp2p-xor/key"
 	"math/rand"
+	"testing"
 )
 
 func TestImmutableRemoveIsImmutable(t *testing.T) {
@@ -58,5 +59,14 @@ func TestRemoveIsOrderIndependent(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+func TestRemoveReturnsOriginalWhenNoKeyRemoved(t *testing.T) {
+	trie := FromKeys(testAddSamples[0].Keys)
+
+	result := Remove(trie, key.ByteKey(2))
+	if trie != result {
+		t.Fatalf("Remove should return original trie when no key was removed")
 	}
 }
