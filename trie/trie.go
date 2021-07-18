@@ -107,14 +107,3 @@ func (trie *Trie) shrink() {
 		trie.Branch[0], trie.Branch[1] = nil, nil
 	}
 }
-
-func (trie *Trie) grow(depth int) *Trie {
-	if trie.IsEmpty() {
-		return trie
-	}
-	root := &Trie{}
-	dir := trie.Key.BitAt(depth)
-	root.Branch[dir] = trie
-	root.Branch[1-dir] = &Trie{}
-	return root
-}
