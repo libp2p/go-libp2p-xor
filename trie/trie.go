@@ -94,6 +94,17 @@ func (trie *Trie) IsNonEmptyLeaf() bool {
 	return !trie.IsEmpty() && trie.IsLeaf()
 }
 
+func (trie *Trie) Copy() *Trie {
+	if trie.IsLeaf() {
+		return &Trie{Key: trie.Key}
+	}
+
+	return &Trie{Branch: [2]*Trie{
+		trie.Branch[0].Copy(),
+		trie.Branch[1].Copy(),
+	}}
+}
+
 func (trie *Trie) shrink() {
 	b0, b1 := trie.Branch[0], trie.Branch[1]
 	switch {

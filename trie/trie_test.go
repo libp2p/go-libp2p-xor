@@ -27,6 +27,22 @@ func testSeq(r *Trie, t *testing.T) {
 	}
 }
 
+func TestCopy(t *testing.T) {
+	for _, sample := range testAddSamples {
+		trie := FromKeys(sample.Keys)
+		copy := trie.Copy()
+		if d := copy.CheckInvariant(); d != nil {
+			t.Fatalf("trie invariant discrepancy: %v", d)
+		}
+		if trie == copy {
+			t.Errorf("Expected trie copy not to be the same reference as original")
+		}
+		if !Equal(trie, copy) {
+			t.Errorf("Expected tries to be equal, original: %v\n, copy: %v\n", trie, copy)
+		}
+	}
+}
+
 var testInsertSeq = []struct {
 	key           []byte
 	insertedDepth int
