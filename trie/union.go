@@ -49,15 +49,12 @@ func UnionAtDepth(depth int, left, right *Trie) *Trie {
 
 func unionTrieAndLeaf(depth int, trie, leaf *Trie) *Trie {
 	if leaf.IsEmpty() {
-		return &Trie{Branch: [2]*Trie{
-			trie.Branch[0].Copy(),
-			trie.Branch[1].Copy(),
-		}}
+		return trie.Copy()
 	} else {
 		dir := leaf.Key.BitAt(depth)
 		copy := &Trie{}
 		copy.Branch[dir] = UnionAtDepth(depth+1, trie.Branch[dir], leaf)
-		copy.Branch[1-dir] = trie.Branch[1-dir]
+		copy.Branch[1-dir] = trie.Branch[1-dir].Copy()
 		return copy
 	}
 }
