@@ -10,24 +10,24 @@ import (
 
 func TestIntersectRandom(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		testIntersect(t, randomTestIntersectSample(10, 21, 7))
+		testIntersect(t, randomTestSetSample(10, 21, 7))
 	}
 }
 
 func TestIntersect(t *testing.T) {
-	for _, s := range testIntersectSamples {
+	for _, s := range testSetSamples {
 		testIntersect(t, s)
 	}
 }
 
 func TestIntersectFromJSON(t *testing.T) {
-	for _, json := range testIntersectJSONSamples {
-		s := testIntersectSampleFromJSON(json)
+	for _, json := range testJSONSamples {
+		s := testSampleSetFromJSON(json)
 		testIntersect(t, s)
 	}
 }
 
-func testIntersect(t *testing.T, sample *testIntersectSample) {
+func testIntersect(t *testing.T, sample *testSetSample) {
 	left, right, expected := New(), New(), New()
 	for _, l := range sample.LeftKeys {
 		left.Add(l)
@@ -66,31 +66,31 @@ func setIntersect(left, right []key.Key) []key.Key {
 	return intersection
 }
 
-func randomTestIntersectSample(leftSize, rightSize, intersectSize int) *testIntersectSample {
+func randomTestSetSample(leftSize, rightSize, intersectSize int) *testSetSample {
 	keys := make([]key.Key, leftSize+rightSize-intersectSize)
 	for i := range keys {
 		keys[i] = key.ByteKey(byte(rand.Intn(256)))
 	}
-	return &testIntersectSample{
+	return &testSetSample{
 		LeftKeys:  keys[:leftSize],
 		RightKeys: keys[leftSize-intersectSize:],
 	}
 }
 
-type testIntersectSample struct {
+type testSetSample struct {
 	LeftKeys  []key.Key
 	RightKeys []key.Key
 }
 
-func testIntersectSampleFromJSON(srcJSON string) *testIntersectSample {
-	s := &testIntersectSample{}
+func testSampleSetFromJSON(srcJSON string) *testSetSample {
+	s := &testSetSample{}
 	if err := json.Unmarshal([]byte(srcJSON), s); err != nil {
 		panic(err)
 	}
 	return s
 }
 
-var testIntersectSamples = []*testIntersectSample{
+var testSetSamples = []*testSetSample{
 	{
 		LeftKeys:  []key.Key{key.ByteKey(1), key.ByteKey(2), key.ByteKey(3)},
 		RightKeys: []key.Key{key.ByteKey(1), key.ByteKey(3), key.ByteKey(5)},
@@ -105,7 +105,7 @@ var testIntersectSamples = []*testIntersectSample{
 	},
 }
 
-var testIntersectJSONSamples = []string{
+var testJSONSamples = []string{
 	`
 {
     "LeftKeys": [
