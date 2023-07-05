@@ -11,41 +11,42 @@ import (
 // (1) Either both branches are nil, or both are non-nil.
 // (2) If branches are non-nil, key must be nil.
 // (3) If both branches are leaves, then they are both non-empty (have keys).
-type Trie struct {
-	Branch [2]*Trie
+type Trie[T any] struct {
+	Branch [2]*Trie[T]
 	Key    key.Key
+	Data   T
 }
 
-func New() *Trie {
-	return &Trie{}
+func New[T any]() *Trie[T] {
+	return &Trie[T]{}
 }
 
-func FromKeys(k []key.Key) *Trie {
-	t := New()
+func FromKeys[T any](k []key.Key) *Trie[T] {
+	t := New[T]()
 	for _, k := range k {
 		t.Add(k)
 	}
 	return t
 }
 
-func FromKeysAtDepth(depth int, k []key.Key) *Trie {
-	t := New()
+func FromKeysAtDepth[T any](depth int, k []key.Key) *Trie[T] {
+	t := New[T]()
 	for _, k := range k {
 		t.AddAtDepth(depth, k)
 	}
 	return t
 }
 
-func (trie *Trie) String() string {
+func (trie *Trie[T]) String() string {
 	b, _ := json.Marshal(trie)
 	return string(b)
 }
 
-func (trie *Trie) Depth() int {
+func (trie *Trie[T]) Depth() int {
 	return trie.DepthAtDepth(0)
 }
 
-func (trie *Trie) DepthAtDepth(depth int) int {
+func (trie *Trie[T]) DepthAtDepth(depth int) int {
 	if trie.Branch[0] == nil && trie.Branch[1] == nil {
 		return depth
 	} else {
@@ -62,11 +63,11 @@ func max(x, y int) int {
 
 // Size returns the number of keys added to the trie.
 // In other words, it returns the number of non-empty leaves in the trie.
-func (trie *Trie) Size() int {
+func (trie *Trie[T]) Size() int {
 	return trie.SizeAtDepth(0)
 }
 
-func (trie *Trie) SizeAtDepth(depth int) int {
+func (trie *Trie[T]) SizeAtDepth(depth int) int {
 	if trie.Branch[0] == nil && trie.Branch[1] == nil {
 		if trie.IsEmpty() {
 			return 0
@@ -78,34 +79,34 @@ func (trie *Trie) SizeAtDepth(depth int) int {
 	}
 }
 
-func (trie *Trie) IsEmpty() bool {
+func (trie *Trie[T]) IsEmpty() bool {
 	return trie.Key == nil
 }
 
-func (trie *Trie) IsLeaf() bool {
+func (trie *Trie[T]) IsLeaf() bool {
 	return trie.Branch[0] == nil && trie.Branch[1] == nil
 }
 
-func (trie *Trie) IsEmptyLeaf() bool {
+func (trie *Trie[T]) IsEmptyLeaf() bool {
 	return trie.IsEmpty() && trie.IsLeaf()
 }
 
-func (trie *Trie) IsNonEmptyLeaf() bool {
+func (trie *Trie[T]) IsNonEmptyLeaf() bool {
 	return !trie.IsEmpty() && trie.IsLeaf()
 }
 
-func (trie *Trie) Copy() *Trie {
+func (trie *Trie[T]) Copy() *Trie[T] {
 	if trie.IsLeaf() {
-		return &Trie{Key: trie.Key}
+		return &Trie[T]{Key: trie.Key}
 	}
 
-	return &Trie{Branch: [2]*Trie{
+	return &Trie[T]{Branch: [2]*Trie[T]{
 		trie.Branch[0].Copy(),
 		trie.Branch[1].Copy(),
 	}}
 }
 
-func (trie *Trie) shrink() {
+func (trie *Trie[T]) shrink() {
 	b0, b1 := trie.Branch[0], trie.Branch[1]
 	switch {
 	case b0.IsEmptyLeaf() && b1.IsEmptyLeaf():

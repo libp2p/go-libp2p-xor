@@ -28,7 +28,7 @@ func TestIntersectFromJSON(t *testing.T) {
 }
 
 func testIntersect(t *testing.T, sample *testSetSample) {
-	left, right, expected := New(), New(), New()
+	left, right, expected := New[any](), New[any](), New[any]()
 	for _, l := range sample.LeftKeys {
 		left.Add(l)
 	}
@@ -149,19 +149,19 @@ var testJSONSamples = []string{
 
 func TestIntersectTriesFromJSON(t *testing.T) {
 	for _, json := range testIntersectJSONTries {
-		s := testIntersectTrieFromJSON(json)
+		s := testIntersectTrieFromJSON[any](json)
 		testIntersectTries(t, s)
 	}
 }
 
-func testIntersectTries(t *testing.T, sample *testIntersectTrie) {
+func testIntersectTries[T any](t *testing.T, sample *testIntersectTrie[T]) {
 	if d := sample.LeftTrie.CheckInvariant(); d != nil {
 		t.Fatalf("left trie invariant discrepancy: %v", d)
 	}
 	if d := sample.RightTrie.CheckInvariant(); d != nil {
 		t.Fatalf("right trie invariant discrepancy: %v", d)
 	}
-	expected := New()
+	expected := New[T]()
 	for _, s := range setIntersect(sample.LeftTrie.List(), sample.RightTrie.List()) {
 		expected.Add(s)
 	}
@@ -175,13 +175,13 @@ func testIntersectTries(t *testing.T, sample *testIntersectTrie) {
 	}
 }
 
-type testIntersectTrie struct {
-	LeftTrie  *Trie
-	RightTrie *Trie
+type testIntersectTrie[T any] struct {
+	LeftTrie  *Trie[T]
+	RightTrie *Trie[T]
 }
 
-func testIntersectTrieFromJSON(srcJSON string) *testIntersectTrie {
-	s := &testIntersectTrie{}
+func testIntersectTrieFromJSON[T any](srcJSON string) *testIntersectTrie[T] {
+	s := &testIntersectTrie[T]{}
 	if err := json.Unmarshal([]byte(srcJSON), s); err != nil {
 		panic(err)
 	}

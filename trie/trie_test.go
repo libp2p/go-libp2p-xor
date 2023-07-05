@@ -7,12 +7,12 @@ import (
 )
 
 func TestInsertRemove(t *testing.T) {
-	r := New()
+	r := New[any]()
 	testSeq(r, t)
 	testSeq(r, t)
 }
 
-func testSeq(r *Trie, t *testing.T) {
+func testSeq[T any](r *Trie[T], t *testing.T) {
 	for _, s := range testInsertSeq {
 		depth, _ := r.Add(key.BytesKey(s.key))
 		if depth != s.insertedDepth {
@@ -29,7 +29,7 @@ func testSeq(r *Trie, t *testing.T) {
 
 func TestCopy(t *testing.T) {
 	for _, sample := range testAddSamples {
-		trie := FromKeys(sample.Keys)
+		trie := FromKeys[any](sample.Keys)
 		copy := trie.Copy()
 		if d := copy.CheckInvariant(); d != nil {
 			t.Fatalf("trie invariant discrepancy: %v", d)

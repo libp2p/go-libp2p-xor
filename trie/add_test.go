@@ -10,8 +10,8 @@ import (
 // Verify mutable and immutable add do the same thing.
 func TestMutableAndImmutableAddSame(t *testing.T) {
 	for _, s := range append(testAddSamples, randomTestAddSamples(100)...) {
-		mut := New()
-		immut := New()
+		mut := New[any]()
+		immut := New[any]()
 		for _, k := range s.Keys {
 			mut.Add(k)
 			immut = Add(immut, k)
@@ -30,7 +30,7 @@ func TestMutableAndImmutableAddSame(t *testing.T) {
 
 func TestAddIsOrderIndependent(t *testing.T) {
 	for _, s := range append(testAddSamples, randomTestAddSamples(100)...) {
-		base := New()
+		base := New[any]()
 		for _, k := range s.Keys {
 			base.Add(k)
 		}
@@ -39,7 +39,7 @@ func TestAddIsOrderIndependent(t *testing.T) {
 		}
 		for j := 0; j < 100; j++ {
 			perm := rand.Perm(len(s.Keys))
-			reordered := New()
+			reordered := New[any]()
 			for i := range s.Keys {
 				reordered.Add(s.Keys[perm[i]])
 			}

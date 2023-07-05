@@ -7,7 +7,7 @@ import (
 
 // BucketAtDepth returns the bucket in the routing table at a given depth.
 // A bucket at depth D holds contacts that share a prefix of exactly D bits with node.
-func BucketAtDepth(node key.Key, table *trie.Trie, depth int) *trie.Trie {
+func BucketAtDepth[T any](node key.Key, table *trie.Trie[T], depth int) *trie.Trie[T] {
 	dir := node.BitAt(depth)
 	if table.IsLeaf() {
 		return nil
@@ -21,11 +21,11 @@ func BucketAtDepth(node key.Key, table *trie.Trie, depth int) *trie.Trie {
 }
 
 // ClosestN will return the count closest keys to the given key.
-func ClosestN(node key.Key, table *trie.Trie, count int) []key.Key {
+func ClosestN[T any](node key.Key, table *trie.Trie[T], count int) []key.Key {
 	return closestAtDepth(node, table, 0, count, make([]key.Key, 0, count))
 }
 
-func closestAtDepth(node key.Key, table *trie.Trie, depth int, count int, found []key.Key) []key.Key {
+func closestAtDepth[T any](node key.Key, table *trie.Trie[T], depth int, count int, found []key.Key) []key.Key {
 	// If we've already found enough peers, abort.
 	if count == len(found) {
 		return found
