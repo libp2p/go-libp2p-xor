@@ -1,6 +1,7 @@
 package trie
 
 import (
+	crand "crypto/rand"
 	"math/rand"
 	"testing"
 
@@ -77,7 +78,7 @@ func randomTestAddSample(setSize, keySizeByte int) *testAddSample {
 	keySet := make([]key.Key, setSize)
 	for i := range keySet {
 		k := make([]byte, keySizeByte)
-		rand.Read(k)
+		crand.Read(k)
 		keySet[i] = key.BytesKey(k)
 	}
 	return &testAddSample{
