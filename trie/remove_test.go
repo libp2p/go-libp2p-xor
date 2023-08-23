@@ -1,9 +1,10 @@
 package trie
 
 import (
-	"github.com/libp2p/go-libp2p-xor/key"
 	"math/rand"
 	"testing"
+
+	"github.com/libp2p/go-libp2p-xor/key"
 )
 
 func TestImmutableRemoveIsImmutable(t *testing.T) {
