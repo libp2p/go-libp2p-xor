@@ -1,6 +1,7 @@
 package kademlia
 
 import (
+	crand "crypto/rand"
 	"math/rand"
 	"testing"
 
@@ -38,7 +39,7 @@ func randomTestTableHealthSubsetSamples(contactSize, knownSize int) *testTableHe
 
 func randomKey(size int) key.Key {
 	k := make([]byte, size)
-	rand.Read(k)
+	crand.Read(k)
 	return key.BytesKey(k)
 }
 
