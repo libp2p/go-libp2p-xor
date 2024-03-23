@@ -24,20 +24,20 @@ func TestUnionFromJSON(t *testing.T) {
 }
 
 func testUnion(t *testing.T, sample *testSetSample) {
-	left := FromKeys(sample.LeftKeys)
-	right := FromKeys(sample.RightKeys)
+	left := FromKeys[any](sample.LeftKeys)
+	right := FromKeys[any](sample.RightKeys)
 	trie := Union(left, right)
-	expected := FromKeys(UnionKeySlices(sample.LeftKeys, sample.RightKeys))
+	expected := FromKeys[any](UnionKeySlices(sample.LeftKeys, sample.RightKeys))
 
 	if !Equal(trie, expected) {
 		t.Errorf("union does not have expected values")
 	}
-	nodesMap := trieNodes(left, make(map[*Trie]bool))
+	nodesMap := trieNodes(left, make(map[*Trie[any]]bool))
 	nodesMap = trieNodes(right, nodesMap)
 	testTrieNotSameReference(t, nodesMap, trie)
 }
 
-func testTrieNotSameReference(t *testing.T, nodesMap map[*Trie]bool, union *Trie) {
+func testTrieNotSameReference[T any](t *testing.T, nodesMap map[*Trie[T]]bool, union *Trie[T]) {
 	if union == nil {
 		return
 	}
@@ -48,7 +48,7 @@ func testTrieNotSameReference(t *testing.T, nodesMap map[*Trie]bool, union *Trie
 	testTrieNotSameReference(t, nodesMap, union.Branch[1])
 }
 
-func trieNodes(trie *Trie, nodesMap map[*Trie]bool) map[*Trie]bool {
+func trieNodes[T any](trie *Trie[T], nodesMap map[*Trie[T]]bool) map[*Trie[T]]bool {
 	if trie == nil {
 		return nodesMap
 	}

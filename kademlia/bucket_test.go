@@ -8,8 +8,8 @@ import (
 	"github.com/libp2p/go-libp2p-xor/trie"
 )
 
-func randomTrie(count int, keySizeByte int) *trie.Trie {
-	t := trie.New()
+func randomTrie[T any](count int, keySizeByte int) *trie.Trie[T] {
+	t := trie.New[T]()
 	for i := 0; i < count; i++ {
 		t.Add(randomKey(keySizeByte))
 	}
@@ -18,7 +18,7 @@ func randomTrie(count int, keySizeByte int) *trie.Trie {
 
 func TestClosestN(t *testing.T) {
 	keySizeByte := 16
-	root := randomTrie(100, keySizeByte)
+	root := randomTrie[any](100, keySizeByte)
 	all := root.List()
 	for count := 0; count <= 100; count += 10 {
 		target := randomKey(keySizeByte)
@@ -50,7 +50,7 @@ var _x int
 
 func BenchmarkClosestN(b *testing.B) {
 	keySizeByte := 16
-	root := randomTrie(100000, keySizeByte)
+	root := randomTrie[any](100000, keySizeByte)
 	count := 20
 	target := randomKey(keySizeByte)
 	b.ResetTimer()
@@ -61,7 +61,7 @@ func BenchmarkClosestN(b *testing.B) {
 
 func BenchmarkClosestTrivial(b *testing.B) {
 	keySizeByte := 16
-	root := randomTrie(100000, keySizeByte)
+	root := randomTrie[any](100000, keySizeByte)
 	keys := root.List()
 	count := 20
 	target := randomKey(keySizeByte)

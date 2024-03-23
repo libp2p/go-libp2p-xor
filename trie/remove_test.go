@@ -8,7 +8,7 @@ import (
 
 func TestImmutableRemoveIsImmutable(t *testing.T) {
 	for _, keySet := range testAddSamples {
-		trie := FromKeys(keySet.Keys)
+		trie := FromKeys[any](keySet.Keys)
 		for _, key := range keySet.Keys {
 			updated := Remove(trie, key)
 			if Equal(trie, updated) {
@@ -21,12 +21,12 @@ func TestImmutableRemoveIsImmutable(t *testing.T) {
 
 func TestMutableAndImmutableRemoveSame(t *testing.T) {
 	for _, keySet := range append(testAddSamples, randomTestAddSamples(100)...) {
-		mut := FromKeys(keySet.Keys)
-		immut := FromKeys(keySet.Keys)
+		mut := FromKeys[any](keySet.Keys)
+		immut := FromKeys[any](keySet.Keys)
 
-		for _, key := range keySet.Keys {
-			mut.Remove(key)
-			immut = Remove(immut, key)
+		for _, k := range keySet.Keys {
+			mut.Remove(k)
+			immut = Remove(immut, k)
 			if d := mut.CheckInvariant(); d != nil {
 				t.Fatalf("mutable trie invariant discrepancy: %v", d)
 			}
@@ -42,8 +42,8 @@ func TestMutableAndImmutableRemoveSame(t *testing.T) {
 
 func TestRemoveIsOrderIndependent(t *testing.T) {
 	for _, keySet := range append(testAddSamples, randomTestAddSamples(100)...) {
-		mut := FromKeys(keySet.Keys)
-		immut := FromKeys(keySet.Keys)
+		mut := FromKeys[any](keySet.Keys)
+		immut := FromKeys[any](keySet.Keys)
 
 		for j := 0; j < 100; j++ {
 			perm := rand.Perm(len(keySet.Keys))
@@ -63,7 +63,7 @@ func TestRemoveIsOrderIndependent(t *testing.T) {
 }
 
 func TestRemoveReturnsOriginalWhenNoKeyRemoved(t *testing.T) {
-	trie := FromKeys(testAddSamples[0].Keys)
+	trie := FromKeys[any](testAddSamples[0].Keys)
 
 	result := Remove(trie, key.ByteKey(2))
 	if trie != result {

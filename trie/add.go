@@ -5,11 +5,11 @@ import (
 )
 
 // Add adds the key q to the trie. Add mutates the trie.
-func (trie *Trie) Add(q key.Key) (insertedDepth int, insertedOK bool) {
+func (trie *Trie[T]) Add(q key.Key) (insertedDepth int, insertedOK bool) {
 	return trie.AddAtDepth(0, q)
 }
 
-func (trie *Trie) AddAtDepth(depth int, q key.Key) (insertedDepth int, insertedOK bool) {
+func (trie *Trie[T]) AddAtDepth(depth int, q key.Key) (insertedDepth int, insertedOK bool) {
 	switch {
 	case trie.IsEmptyLeaf():
 		trie.Key = q
@@ -21,7 +21,7 @@ func (trie *Trie) AddAtDepth(depth int, q key.Key) (insertedDepth int, insertedO
 			p := trie.Key
 			trie.Key = nil
 			// both branches are nil
-			trie.Branch[0], trie.Branch[1] = &Trie{}, &Trie{}
+			trie.Branch[0], trie.Branch[1] = &Trie[T]{}, &Trie[T]{}
 			trie.Branch[p.BitAt(depth)].Key = p
 			return trie.Branch[q.BitAt(depth)].AddAtDepth(depth+1, q)
 		}
@@ -32,40 +32,40 @@ func (trie *Trie) AddAtDepth(depth int, q key.Key) (insertedDepth int, insertedO
 
 // Add adds the key q to trie, returning a new trie.
 // Add is immutable/non-destructive: The original trie remains unchanged.
-func Add(trie *Trie, q key.Key) *Trie {
+func Add[T any](trie *Trie[T], q key.Key) *Trie[T] {
 	return AddAtDepth(0, trie, q)
 }
 
-func AddAtDepth(depth int, trie *Trie, q key.Key) *Trie {
+func AddAtDepth[T any](depth int, trie *Trie[T], q key.Key) *Trie[T] {
 	switch {
 	case trie.IsEmptyLeaf():
-		return &Trie{Key: q}
+		return &Trie[T]{Key: q}
 	case trie.IsNonEmptyLeaf():
 		if key.Equal(trie.Key, q) {
 			return trie
 		} else {
-			return trieForTwo(depth, trie.Key, q)
+			return trieForTwo[T](depth, trie.Key, q)
 		}
 	default:
 		dir := q.BitAt(depth)
-		s := &Trie{}
+		s := &Trie[T]{}
 		s.Branch[dir] = AddAtDepth(depth+1, trie.Branch[dir], q)
 		s.Branch[1-dir] = trie.Branch[1-dir]
 		return s
 	}
 }
 
-func trieForTwo(depth int, p, q key.Key) *Trie {
+func trieForTwo[T any](depth int, p, q key.Key) *Trie[T] {
 	pDir, qDir := p.BitAt(depth), q.BitAt(depth)
 	if qDir == pDir {
-		s := &Trie{}
-		s.Branch[pDir] = trieForTwo(depth+1, p, q)
-		s.Branch[1-pDir] = &Trie{}
+		s := &Trie[T]{}
+		s.Branch[pDir] = trieForTwo[T](depth+1, p, q)
+		s.Branch[1-pDir] = &Trie[T]{}
 		return s
 	} else {
-		s := &Trie{}
-		s.Branch[pDir] = &Trie{Key: p}
-		s.Branch[qDir] = &Trie{Key: q}
+		s := &Trie[T]{}
+		s.Branch[pDir] = &Trie[T]{Key: p}
+		s.Branch[qDir] = &Trie[T]{Key: q}
 		return s
 	}
 }

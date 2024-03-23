@@ -70,7 +70,7 @@ type Table struct {
 // AllTablesHealth computes health reports for a network of nodes, whose routing contacts are given.
 func AllTablesHealth(tables []*Table) (report []*TableHealthReport) {
 	// Construct global network view trie
-	knownNodes := trie.New()
+	knownNodes := trie.New[any]()
 	for _, table := range tables {
 		knownNodes.Add(table.Node)
 	}
@@ -82,7 +82,7 @@ func AllTablesHealth(tables []*Table) (report []*TableHealthReport) {
 }
 
 func TableHealthFromSets(node key.Key, nodeContacts []key.Key, knownNodes []key.Key) *TableHealthReport {
-	knownNodesTrie := trie.New()
+	knownNodesTrie := trie.New[any]()
 	for _, k := range knownNodes {
 		knownNodesTrie.Add(k)
 	}
@@ -91,9 +91,9 @@ func TableHealthFromSets(node key.Key, nodeContacts []key.Key, knownNodes []key.
 
 // TableHealth computes the health report for a node,
 // given its routing contacts and a list of all known nodes in the network currently.
-func TableHealth(node key.Key, nodeContacts []key.Key, knownNodes *trie.Trie) *TableHealthReport {
+func TableHealth[T any](node key.Key, nodeContacts []key.Key, knownNodes *trie.Trie[T]) *TableHealthReport {
 	// Reconstruct the node's routing table as a trie
-	nodeTable := trie.New()
+	nodeTable := trie.New[T]()
 	nodeTable.Add(node)
 	for _, u := range nodeContacts {
 		nodeTable.Add(u)
@@ -110,13 +110,13 @@ func TableHealth(node key.Key, nodeContacts []key.Key, knownNodes *trie.Trie) *T
 
 // BucketHealth computes the health report for each bucket in a node's routing table,
 // given the node's routing table and a list of all known nodes in the network currently.
-func BucketHealth(node key.Key, nodeTable, knownNodes *trie.Trie) []*BucketHealthReport {
+func BucketHealth[T any](node key.Key, nodeTable, knownNodes *trie.Trie[T]) []*BucketHealthReport {
 	r := walkBucketHealth(0, node, nodeTable, knownNodes)
 	sort.Sort(sortedBucketHealthReport(r))
 	return r
 }
 
-func walkBucketHealth(depth int, node key.Key, nodeTable, knownNodes *trie.Trie) []*BucketHealthReport {
+func walkBucketHealth[T any](depth int, node key.Key, nodeTable, knownNodes *trie.Trie[T]) []*BucketHealthReport {
 	if nodeTable.IsLeaf() {
 		return nil
 	} else {
@@ -156,7 +156,7 @@ func walkBucketHealth(depth int, node key.Key, nodeTable, knownNodes *trie.Trie)
 	}
 }
 
-func bucketReportFromTries(depth int, actualBucket, maxBucket *trie.Trie) *BucketHealthReport {
+func bucketReportFromTries[T any](depth int, actualBucket, maxBucket *trie.Trie[T]) *BucketHealthReport {
 	actualKnown := trie.IntersectAtDepth(depth, actualBucket, maxBucket)
 	actualKnownSize := actualKnown.Size()
 	return &BucketHealthReport{

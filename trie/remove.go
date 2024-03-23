@@ -6,11 +6,11 @@ import (
 
 // Remove removes the key q from the trie. Remove mutates the trie.
 // TODO: Also implement an immutable version of Remove.
-func (trie *Trie) Remove(q key.Key) (removedDepth int, removed bool) {
+func (trie *Trie[T]) Remove(q key.Key) (removedDepth int, removed bool) {
 	return trie.RemoveAtDepth(0, q)
 }
 
-func (trie *Trie) RemoveAtDepth(depth int, q key.Key) (reachedDepth int, removed bool) {
+func (trie *Trie[T]) RemoveAtDepth(depth int, q key.Key) (reachedDepth int, removed bool) {
 	switch {
 	case trie.IsEmptyLeaf():
 		return depth, false
@@ -27,25 +27,25 @@ func (trie *Trie) RemoveAtDepth(depth int, q key.Key) (reachedDepth int, removed
 	}
 }
 
-func Remove(trie *Trie, q key.Key) *Trie {
+func Remove[T any](trie *Trie[T], q key.Key) *Trie[T] {
 	return RemoveAtDepth(0, trie, q)
 }
 
-func RemoveAtDepth(depth int, trie *Trie, q key.Key) *Trie {
+func RemoveAtDepth[T any](depth int, trie *Trie[T], q key.Key) *Trie[T] {
 	switch {
 	case trie.IsEmptyLeaf():
 		return trie
 	case trie.IsNonEmptyLeaf() && !key.Equal(trie.Key, q):
 		return trie
 	case trie.IsNonEmptyLeaf() && key.Equal(trie.Key, q):
-		return &Trie{}
+		return &Trie[T]{}
 	default:
 		dir := q.BitAt(depth)
 		afterDelete := RemoveAtDepth(depth+1, trie.Branch[dir], q)
 		if afterDelete == trie.Branch[dir] {
 			return trie
 		}
-		copy := &Trie{}
+		copy := &Trie[T]{}
 		copy.Branch[dir] = afterDelete
 		copy.Branch[1-dir] = trie.Branch[1-dir]
 		copy.shrink()

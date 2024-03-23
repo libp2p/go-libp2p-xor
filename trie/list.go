@@ -5,7 +5,7 @@ import (
 )
 
 // List returns a list of all keys in the trie.
-func (trie *Trie) List() []key.Key {
+func (trie *Trie[T]) List() []key.Key {
 	switch {
 	case trie.IsEmptyLeaf():
 		return nil

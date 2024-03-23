@@ -14,22 +14,22 @@ func UnionKeySlices(left, right []key.Key) []key.Key {
 	return result
 }
 
-func Union(left, right *Trie) *Trie {
+func Union[T any](left, right *Trie[T]) *Trie[T] {
 	return UnionAtDepth(0, left, right)
 }
 
-func UnionAtDepth(depth int, left, right *Trie) *Trie {
+func UnionAtDepth[T any](depth int, left, right *Trie[T]) *Trie[T] {
 	switch {
 	case left.IsLeaf() && right.IsLeaf():
 		switch {
 		case left.IsEmpty() && right.IsEmpty():
-			return &Trie{}
+			return &Trie[T]{}
 		case !left.IsEmpty() && right.IsEmpty():
-			return &Trie{Key: left.Key}
+			return &Trie[T]{Key: left.Key}
 		case left.IsEmpty() && !right.IsEmpty():
-			return &Trie{Key: right.Key}
+			return &Trie[T]{Key: right.Key}
 		case !left.IsEmpty() && !right.IsEmpty():
-			u := &Trie{}
+			u := &Trie[T]{}
 			u.AddAtDepth(depth, left.Key)
 			u.AddAtDepth(depth, right.Key)
 			return u
@@ -39,7 +39,7 @@ func UnionAtDepth(depth int, left, right *Trie) *Trie {
 	case left.IsLeaf() && !right.IsLeaf():
 		return unionTrieAndLeaf(depth, right, left)
 	case !left.IsLeaf() && !right.IsLeaf():
-		return &Trie{Branch: [2]*Trie{
+		return &Trie[T]{Branch: [2]*Trie[T]{
 			UnionAtDepth(depth+1, left.Branch[0], right.Branch[0]),
 			UnionAtDepth(depth+1, left.Branch[1], right.Branch[1]),
 		}}
@@ -47,12 +47,12 @@ func UnionAtDepth(depth int, left, right *Trie) *Trie {
 	panic("unreachable")
 }
 
-func unionTrieAndLeaf(depth int, trie, leaf *Trie) *Trie {
+func unionTrieAndLeaf[T any](depth int, trie, leaf *Trie[T]) *Trie[T] {
 	if leaf.IsEmpty() {
 		return trie.Copy()
 	} else {
 		dir := leaf.Key.BitAt(depth)
-		copy := &Trie{}
+		copy := &Trie[T]{}
 		copy.Branch[dir] = UnionAtDepth(depth+1, trie.Branch[dir], leaf)
 		copy.Branch[1-dir] = trie.Branch[1-dir].Copy()
 		return copy
