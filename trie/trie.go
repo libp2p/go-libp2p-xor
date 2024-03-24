@@ -67,7 +67,7 @@ func (trie *Trie) Size() int {
 }
 
 func (trie *Trie) SizeAtDepth(depth int) int {
-	if trie.Branch[0] == nil && trie.Branch[1] == nil {
+	if trie.IsLeaf() {
 		if trie.IsEmpty() {
 			return 0
 		} else {
