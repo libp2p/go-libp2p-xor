@@ -11,11 +11,11 @@ type InvariantDiscrepancy struct {
 }
 
 // CheckInvariant panics of the trie does not meet its invariant.
-func (trie *Trie) CheckInvariant() *InvariantDiscrepancy {
+func (trie *Trie[T]) CheckInvariant() *InvariantDiscrepancy {
 	return trie.checkInvariant(0, nil)
 }
 
-func (trie *Trie) checkInvariant(depth int, pathSoFar *triePath) *InvariantDiscrepancy {
+func (trie *Trie[T]) checkInvariant(depth int, pathSoFar *triePath) *InvariantDiscrepancy {
 	switch {
 	case trie.IsEmptyLeaf():
 		return nil

@@ -25,37 +25,37 @@ func keyIsIn(q key.Key, s []key.Key) bool {
 
 // Intersect computes the intersection of the keys in p and q.
 // p and q must be non-nil. The returned trie is never nil.
-func Intersect(p, q *Trie) *Trie {
+func Intersect[T any](p, q *Trie[T]) *Trie[T] {
 	return IntersectAtDepth(0, p, q)
 }
 
-func IntersectAtDepth(depth int, p, q *Trie) *Trie {
+func IntersectAtDepth[T any](depth int, p, q *Trie[T]) *Trie[T] {
 	switch {
 	case p.IsLeaf() && q.IsLeaf():
 		if p.IsEmpty() || q.IsEmpty() {
-			return &Trie{} // empty set
+			return &Trie[T]{} // empty set
 		} else {
 			if key.Equal(p.Key, q.Key) {
-				return &Trie{Key: p.Key} // singleton
+				return &Trie[T]{Key: p.Key} // singleton
 			} else {
-				return &Trie{} // empty set
+				return &Trie[T]{} // empty set
 			}
 		}
 	case p.IsLeaf() && !q.IsLeaf():
 		if p.IsEmpty() {
-			return &Trie{} // empty set
+			return &Trie[T]{} // empty set
 		} else {
 			if _, found := q.FindAtDepth(depth, p.Key); found {
-				return &Trie{Key: p.Key}
+				return &Trie[T]{Key: p.Key}
 			} else {
-				return &Trie{} // empty set
+				return &Trie[T]{} // empty set
 			}
 		}
 	case !p.IsLeaf() && q.IsLeaf():
 		return IntersectAtDepth(depth, q, p)
 	case !p.IsLeaf() && !q.IsLeaf():
-		disjointUnion := &Trie{
-			Branch: [2]*Trie{
+		disjointUnion := &Trie[T]{
+			Branch: [2]*Trie[T]{
 				IntersectAtDepth(depth+1, p.Branch[0], q.Branch[0]),
 				IntersectAtDepth(depth+1, p.Branch[1], q.Branch[1]),
 			},
